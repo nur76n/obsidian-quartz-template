@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "2021-09-01-megacli.md",
+                "file": "2021-09-02-multipathd.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2021-09-01-megacli"
+              "title": "2021-09-02-multipathd"
             }
           },
           {
@@ -108,7 +108,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "2021-09-01-megacli.md",
+                "file": "2021-09-02-multipathd.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -118,7 +118,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for 2021-09-01-megacli"
+              "title": "Backlinks for 2021-09-02-multipathd"
             }
           },
           {
@@ -127,12 +127,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "2021-09-01-megacli.md",
+                "file": "2021-09-02-multipathd.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from 2021-09-01-megacli"
+              "title": "Outgoing links from 2021-09-02-multipathd"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "2021-09-01-megacli.md",
+                "file": "2021-09-02-multipathd.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of 2021-09-01-megacli"
+              "title": "Outline of 2021-09-02-multipathd"
             }
           },
           {
@@ -194,11 +194,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "b77831b90dd9f87b",
+  "active": "47ef711f7e8c1d64",
   "lastOpenFiles": [
-    "index.md",
-    "2021-09-02-multipathd.md",
     "2021-09-01-megacli.md",
+    "2021-09-02-multipathd.md",
+    "index.md",
     "category-folder/Some note.md",
     "category-folder/index.md",
     "category-folder"

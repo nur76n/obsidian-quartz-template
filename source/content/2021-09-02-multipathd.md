@@ -14,7 +14,7 @@ systemctl enable multipath-tools
 systemctl start multipath-tools
 ```
 Теперь приступаем к настройке.
-  
+
   
 
 ## Настройка
