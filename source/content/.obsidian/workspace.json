@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "1С/1С Отказоустойчивый кластер.md",
+                "file": "MikroTik/Terminal commands.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "1С Отказоустойчивый кластер"
+              "title": "Terminal commands"
             }
           }
         ],
@@ -109,7 +109,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "1С/1С Отказоустойчивый кластер.md",
+                "file": "DevOps/Developement Module.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -119,7 +119,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for 1С Отказоустойчивый кластер"
+              "title": "Backlinks for Developement Module"
             }
           },
           {
@@ -128,12 +128,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "1С/1С Отказоустойчивый кластер.md",
+                "file": "DevOps/Developement Module.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from 1С Отказоустойчивый кластер"
+              "title": "Outgoing links from Developement Module"
             }
           },
           {
@@ -157,13 +157,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "1С/1С Отказоустойчивый кластер.md",
+                "file": "DevOps/Developement Module.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of 1С Отказоустойчивый кластер"
+              "title": "Outline of Developement Module"
             }
           },
           {
@@ -195,21 +195,21 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "2d8837e6263008e3",
+  "active": "b77831b90dd9f87b",
   "lastOpenFiles": [
-    "1С/1С Скрипт для вывода списков баз.md",
+    "MikroTik/index.md",
+    "MikroTik/Terminal commands.md",
+    "DevOps/Developement Module.md",
     "1С/1С Бэкап базы с помощью PowerShell.md",
     "1С/1С Отказоустойчивый кластер.md",
-    "DevOps/Developement Module.md",
+    "1С/1С Скрипт для вывода списков баз.md",
     "Linux/2021-09-01-megacli.md",
     "index.md",
     "Linux/2025-01-15-mikrotik-capsman-cap-ac.md",
     "Linux/2021-09-02-multipathd.md",
     "Linux/2021-09-04-proxmox-cloud-init.md",
     "Linux/2021-09-06-docker.md",
-    "category-folder/index.md",
     "base_file.base",
-    "category-folder/Some note.md",
     "DevOps/Не подтвержден 233735.crdownload",
     "DevOps/Untitled.md",
     "DevOps",
@@ -223,6 +223,6 @@
     "img",
     "Не подтвержден 632395.crdownload",
     "Не подтвержден 7858.crdownload",
-    "category-folder"
+    "MikroTik"
   ]
 }
