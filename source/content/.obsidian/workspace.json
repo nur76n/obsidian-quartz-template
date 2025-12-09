@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "1С/2021-09-03-1c-backup-dt.md",
+                "file": "index.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2021-09-03-1c-backup-dt"
+              "title": "index"
             }
           },
           {
@@ -27,15 +27,16 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Linux/2021-09-01-megacli.md",
+                "file": "1С/2021-09-03-1c-backup-dt.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2021-09-01-megacli"
+              "title": "2021-09-03-1c-backup-dt"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -194,21 +195,21 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "1f6b879bf346a336",
+  "active": "2d8837e6263008e3",
   "lastOpenFiles": [
-    "Linux/2021-09-02-multipathd.md",
+    "1С/2021-12-13-1c_srv_ib_list.md",
+    "1С/2021-09-03-1c-backup-dt.md",
     "Linux/2021-09-01-megacli.md",
+    "index.md",
+    "Linux/2025-01-15-mikrotik-capsman-cap-ac.md",
+    "Linux/2021-09-02-multipathd.md",
     "Linux/2021-09-04-proxmox-cloud-init.md",
     "Linux/2021-09-06-docker.md",
-    "Linux/2025-01-15-mikrotik-capsman-cap-ac.md",
-    "1С/2021-09-03-1c-backup-dt.md",
     "DevOps/index.md",
-    "index.md",
     "category-folder/index.md",
     "base_file.base",
     "1С/2025-08-14-1c-cluster-config.md",
     "category-folder/Some note.md",
-    "1С/2021-12-13-1c_srv_ib_list.md",
     "DevOps/Не подтвержден 233735.crdownload",
     "DevOps/Untitled.md",
     "DevOps",
