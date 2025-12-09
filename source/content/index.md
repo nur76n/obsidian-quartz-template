@@ -1,9 +1,8 @@
 ---
-title: My GitHub Pages Notebook!
+title: Содержание
 ---
 
-Hello world!
 
-Write some words here!
 
-Test
+![[base_file.base]]
+
