@@ -1,8 +1,7 @@
-# MegaCLI
 
 ##  Установка
 
-Добавлеям в  файл `/etc/apt/sources.list`
+Добавляем в  файл `/etc/apt/sources.list`
 ```
 # MegaCLI
 deb http://hwraid.le-vert.net/debian buster main
