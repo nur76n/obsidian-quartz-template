@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "index.md",
+                "file": "2021-09-02-multipathd.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "index"
+              "title": "2021-09-02-multipathd"
             }
           },
           {
@@ -27,16 +27,15 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Multipath.md",
-                "mode": "preview",
+                "file": "2021-09-01-megacli.md",
+                "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Multipath"
+              "title": "2021-09-01-megacli"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -109,7 +108,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Multipath.md",
+                "file": "2021-09-02-multipathd.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -119,7 +118,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Multipath"
+              "title": "Backlinks for 2021-09-02-multipathd"
             }
           },
           {
@@ -128,12 +127,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Multipath.md",
+                "file": "2021-09-02-multipathd.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Multipath"
+              "title": "Outgoing links from 2021-09-02-multipathd"
             }
           },
           {
@@ -157,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Multipath.md",
+                "file": "2021-09-02-multipathd.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Multipath"
+              "title": "Outline of 2021-09-02-multipathd"
             }
           },
           {
@@ -181,7 +180,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 406.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -195,10 +194,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "2d8837e6263008e3",
+  "active": "1f6b879bf346a336",
   "lastOpenFiles": [
-    "MegaCLI.md",
-    "Multipath.md",
+    "2021-09-01-megacli.md",
+    "2021-09-02-multipathd.md",
     "index.md",
     "category-folder/Some note.md",
     "category-folder/index.md",
