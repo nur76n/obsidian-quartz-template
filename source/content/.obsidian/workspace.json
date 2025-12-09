@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "2025-01-15-mikrotik-capsman-cap-ac.md",
-                "mode": "preview",
+                "file": "category-folder/index.md",
+                "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2025-01-15-mikrotik-capsman-cap-ac"
+              "title": "index"
             }
           },
           {
@@ -27,7 +27,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "2021-09-01-megacli.md",
+                "file": "Linux/2021-09-01-megacli.md",
                 "mode": "source",
                 "source": false
               },
@@ -108,7 +108,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "2025-01-15-mikrotik-capsman-cap-ac.md",
+                "file": "category-folder/index.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -118,7 +118,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for 2025-01-15-mikrotik-capsman-cap-ac"
+              "title": "Backlinks for index"
             }
           },
           {
@@ -127,12 +127,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "2025-01-15-mikrotik-capsman-cap-ac.md",
+                "file": "category-folder/index.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from 2025-01-15-mikrotik-capsman-cap-ac"
+              "title": "Outgoing links from index"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "2025-01-15-mikrotik-capsman-cap-ac.md",
+                "file": "category-folder/index.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of 2025-01-15-mikrotik-capsman-cap-ac"
+              "title": "Outline of index"
             }
           },
           {
@@ -196,18 +196,27 @@
   },
   "active": "47ef711f7e8c1d64",
   "lastOpenFiles": [
-    "index.md",
-    "2025-01-15-mikrotik-capsman-cap-ac.md",
-    "img",
-    "img/Pasted image 20251209191132.png",
-    "2021-09-02-multipathd.md",
-    "2021-09-06-docker.md",
-    "Не подтвержден 632395.crdownload",
-    "2021-09-04-proxmox-cloud-init.md",
-    "Не подтвержден 7858.crdownload",
-    "2021-09-01-megacli.md",
     "category-folder/Some note.md",
     "category-folder/index.md",
+    "1С/2025-08-14-1c-cluster-config.md",
+    "1С/2021-12-13-1c_srv_ib_list.md",
+    "1С/2021-09-03-1c-backup-dt.md",
+    "Linux/2025-01-15-mikrotik-capsman-cap-ac.md",
+    "img/Pasted image 20251209191539.png",
+    "img/Pasted image 20251209191607.png",
+    "img/Pasted image 20251209191549.png",
+    "1С/Не подтвержден 716833.crdownload",
+    "1С",
+    "Linux/2021-09-06-docker.md",
+    "Linux/2021-09-01-megacli.md",
+    "Linux/2021-09-04-proxmox-cloud-init.md",
+    "Linux",
+    "Linux/2021-09-02-multipathd.md",
+    "img/Pasted image 20251209191132.png",
+    "index.md",
+    "img",
+    "Не подтвержден 632395.crdownload",
+    "Не подтвержден 7858.crdownload",
     "category-folder"
   ]
 }
