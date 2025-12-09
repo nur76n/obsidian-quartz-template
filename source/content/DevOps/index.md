@@ -4,8 +4,6 @@ title: Developement Module
 nav_order: 80
 ---
 
-# Developement Module
-
 ## PHP Symfony
 ---
 Установка необходимых пакетов

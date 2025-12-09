@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "index.md",
-                "mode": "source",
+                "file": "1С/2021-09-03-1c-backup-dt.md",
+                "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "index"
+              "title": "2021-09-03-1c-backup-dt"
             }
           },
           {
@@ -108,7 +108,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "index.md",
+                "file": "1С/2021-09-03-1c-backup-dt.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -118,7 +118,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for index"
+              "title": "Backlinks for 2021-09-03-1c-backup-dt"
             }
           },
           {
@@ -127,12 +127,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "index.md",
+                "file": "1С/2021-09-03-1c-backup-dt.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from index"
+              "title": "Outgoing links from 2021-09-03-1c-backup-dt"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "index.md",
+                "file": "1С/2021-09-03-1c-backup-dt.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of index"
+              "title": "Outline of 2021-09-03-1c-backup-dt"
             }
           },
           {
@@ -194,29 +194,29 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "47ef711f7e8c1d64",
+  "active": "1f6b879bf346a336",
   "lastOpenFiles": [
+    "Linux/2021-09-02-multipathd.md",
+    "Linux/2021-09-01-megacli.md",
+    "Linux/2021-09-04-proxmox-cloud-init.md",
+    "Linux/2021-09-06-docker.md",
+    "Linux/2025-01-15-mikrotik-capsman-cap-ac.md",
+    "1С/2021-09-03-1c-backup-dt.md",
     "DevOps/index.md",
     "index.md",
     "category-folder/index.md",
     "base_file.base",
     "1С/2025-08-14-1c-cluster-config.md",
-    "1С/2021-09-03-1c-backup-dt.md",
     "category-folder/Some note.md",
     "1С/2021-12-13-1c_srv_ib_list.md",
-    "Linux/2021-09-01-megacli.md",
-    "Linux/2021-09-02-multipathd.md",
     "DevOps/Не подтвержден 233735.crdownload",
     "DevOps/Untitled.md",
     "DevOps",
-    "Linux/2025-01-15-mikrotik-capsman-cap-ac.md",
     "img/Pasted image 20251209191539.png",
     "img/Pasted image 20251209191607.png",
     "img/Pasted image 20251209191549.png",
     "1С/Не подтвержден 716833.crdownload",
     "1С",
-    "Linux/2021-09-06-docker.md",
-    "Linux/2021-09-04-proxmox-cloud-init.md",
     "Linux",
     "img/Pasted image 20251209191132.png",
     "img",
