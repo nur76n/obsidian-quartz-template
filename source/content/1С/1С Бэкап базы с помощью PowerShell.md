@@ -2,6 +2,11 @@
 layout: default
 title: 📒 1С бэкап базы с помощью PowerShell
 nav_order: 80
+tags:
+  - 1c
+  - windows
+  - backup
+  - powershell
 ---
 
 # 1С бэкап базы с помощью PowerShell

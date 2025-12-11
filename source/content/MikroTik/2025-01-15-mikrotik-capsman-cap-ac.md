@@ -2,6 +2,10 @@
 layout: default
 title: MikroTik CapsMan for CAP AC
 nav_order: 70
+tags:
+  - mikrotik
+  - capsman
+  - wifi
 ---
 
 # MikroTik CapsMan for CAP AC
