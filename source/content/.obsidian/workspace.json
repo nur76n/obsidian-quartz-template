@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "MikroTik/2025-01-15-mikrotik-capsman-cap-ac.md",
+                "file": "1С/1С Бэкап базы с помощью PowerShell.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2025-01-15-mikrotik-capsman-cap-ac"
+              "title": "1С Бэкап базы с помощью PowerShell"
             }
           }
         ],
@@ -109,7 +109,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "MikroTik/2025-01-15-mikrotik-capsman-cap-ac.md",
+                "file": "1С/1С Бэкап базы с помощью PowerShell.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -119,7 +119,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for 2025-01-15-mikrotik-capsman-cap-ac"
+              "title": "Backlinks for 1С Бэкап базы с помощью PowerShell"
             }
           },
           {
@@ -128,12 +128,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "MikroTik/2025-01-15-mikrotik-capsman-cap-ac.md",
+                "file": "1С/1С Бэкап базы с помощью PowerShell.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from 2025-01-15-mikrotik-capsman-cap-ac"
+              "title": "Outgoing links from 1С Бэкап базы с помощью PowerShell"
             }
           },
           {
@@ -174,13 +174,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "MikroTik/2025-01-15-mikrotik-capsman-cap-ac.md",
+                "file": "1С/1С Бэкап базы с помощью PowerShell.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of 2025-01-15-mikrotik-capsman-cap-ac"
+              "title": "Outline of 1С Бэкап базы с помощью PowerShell"
             }
           }
         ]
@@ -206,14 +206,14 @@
     "1С/1С Скрипт для вывода списков баз.md",
     "1С/1С Отказоустойчивый кластер.md",
     "1С/1С Бэкап базы с помощью PowerShell.md",
+    "MikroTik/index.md",
+    "MikroTik/Terminal commands.md",
+    "MikroTik/2025-01-15-mikrotik-capsman-cap-ac.md",
     "DevOps/Developement Module.md",
     "Linux/2021-09-01-megacli.md",
     "Linux/2021-09-02-multipathd.md",
     "Linux/2021-09-04-proxmox-cloud-init.md",
     "Linux/2021-09-06-docker.md",
-    "MikroTik/2025-01-15-mikrotik-capsman-cap-ac.md",
-    "MikroTik/Terminal commands.md",
-    "MikroTik/index.md",
     "base_file.base",
     "index.md",
     "DevOps/Не подтвержден 233735.crdownload",

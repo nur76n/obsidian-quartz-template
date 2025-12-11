@@ -1,6 +1,6 @@
 ---
 layout: default
-title: 📒 1С бэкап базы с помощью PowerShell
+title: 1С бэкап базы с помощью PowerShell
 nav_order: 80
 tags:
   - 1c
