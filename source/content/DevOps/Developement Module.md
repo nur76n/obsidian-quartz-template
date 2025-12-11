@@ -2,6 +2,20 @@
 layout: default
 title: Developement Module
 nav_order: 80
+tags:
+  - devops
+  - linux
+  - nginx
+  - letsencrypt
+  - php
+  - nodejs
+  - ruby
+  - python
+  - java
+  - aspnet
+  - elixir
+  - django
+  - uwsgi
 ---
 
 ## PHP Symfony

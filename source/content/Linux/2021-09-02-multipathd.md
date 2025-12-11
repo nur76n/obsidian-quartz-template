@@ -3,6 +3,7 @@ title: Multipath
 tags:
   - LVM
   - multipath
+  - linux
 ---
 
 ## Установка
