@@ -68,7 +68,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "tag:#LVM",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -89,7 +89,8 @@
               "title": "Bookmarks"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -201,9 +202,10 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "1f6b879bf346a336",
+  "active": "0829eb50dbb8a2b3",
   "lastOpenFiles": [
     "Linux/2021-09-01-megacli.md",
+    "Linux/2021-09-02-multipathd.md",
     "DevOps/Developement Module.md",
     "MikroTik/2025-01-15-mikrotik-capsman-cap-ac.md",
     "MikroTik/Terminal commands.md",
@@ -215,7 +217,6 @@
     "1С/1С Отказоустойчивый кластер.md",
     "Linux/2021-09-04-proxmox-cloud-init.md",
     "Linux/2021-09-06-docker.md",
-    "Linux/2021-09-02-multipathd.md",
     "DevOps/Не подтвержден 233735.crdownload",
     "DevOps/Untitled.md",
     "DevOps",
