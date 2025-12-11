@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "MikroTik/Terminal commands.md",
+                "file": "Linux/2021-09-02-multipathd.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Terminal commands"
+              "title": "2021-09-02-multipathd"
             }
           }
         ],
@@ -93,7 +93,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 251.5
   },
   "right": {
     "id": "ba1ec06a672fb227",
@@ -109,7 +109,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "DevOps/Developement Module.md",
+                "file": "Linux/2021-09-02-multipathd.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -119,7 +119,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Developement Module"
+              "title": "Backlinks for 2021-09-02-multipathd"
             }
           },
           {
@@ -128,12 +128,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "DevOps/Developement Module.md",
+                "file": "Linux/2021-09-02-multipathd.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Developement Module"
+              "title": "Outgoing links from 2021-09-02-multipathd"
             }
           },
           {
@@ -152,21 +152,6 @@
             }
           },
           {
-            "id": "2d9129bb8dcf7983",
-            "type": "leaf",
-            "state": {
-              "type": "outline",
-              "state": {
-                "file": "DevOps/Developement Module.md",
-                "followCursor": false,
-                "showSearch": false,
-                "searchQuery": ""
-              },
-              "icon": "lucide-list",
-              "title": "Outline of Developement Module"
-            }
-          },
-          {
             "id": "1f6b879bf346a336",
             "type": "leaf",
             "state": {
@@ -177,11 +162,32 @@
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 3
+      },
+      {
+        "id": "faf56a483313e6fc",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "2d9129bb8dcf7983",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Linux/2021-09-02-multipathd.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of 2021-09-02-multipathd"
+            }
+          }
+        ]
       }
     ],
     "direction": "horizontal",
-    "width": 406.5
+    "width": 285
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -195,21 +201,21 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "2d8837e6263008e3",
+  "active": "1f6b879bf346a336",
   "lastOpenFiles": [
-    "MikroTik/index.md",
+    "Linux/2021-09-01-megacli.md",
+    "DevOps/Developement Module.md",
     "MikroTik/2025-01-15-mikrotik-capsman-cap-ac.md",
     "MikroTik/Terminal commands.md",
-    "DevOps/Developement Module.md",
+    "MikroTik/index.md",
+    "base_file.base",
+    "index.md",
+    "1С/1С Скрипт для вывода списков баз.md",
     "1С/1С Бэкап базы с помощью PowerShell.md",
     "1С/1С Отказоустойчивый кластер.md",
-    "1С/1С Скрипт для вывода списков баз.md",
-    "Linux/2021-09-01-megacli.md",
-    "index.md",
-    "Linux/2021-09-02-multipathd.md",
     "Linux/2021-09-04-proxmox-cloud-init.md",
     "Linux/2021-09-06-docker.md",
-    "base_file.base",
+    "Linux/2021-09-02-multipathd.md",
     "DevOps/Не подтвержден 233735.crdownload",
     "DevOps/Untitled.md",
     "DevOps",
