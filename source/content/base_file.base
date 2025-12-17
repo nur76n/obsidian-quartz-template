@@ -1,7 +1,18 @@
 views:
   - type: table
     name: Table
-  - type: list
+  - type: table
     name: View
+    filters:
+      and:
+        - "!title.isEmpty()"
+    order:
+      - title
+      - file.name
+    sort:
+      - property: nav_order
+        direction: ASC
     indentProperties: false
     markers: bullet
+    columnSize:
+      note.title: 371
