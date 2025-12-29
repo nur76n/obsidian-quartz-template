@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "index.md",
+                "file": "1С/1C Батники для создания служб.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "index"
+              "title": "1C Батники для создания служб"
             }
           }
         ],
@@ -109,7 +109,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "index.md",
+                "file": "1С/1C Батники для создания служб.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -119,7 +119,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for index"
+              "title": "Backlinks for 1C Батники для создания служб"
             }
           },
           {
@@ -128,12 +128,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "index.md",
+                "file": "1С/1C Батники для создания служб.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from index"
+              "title": "Outgoing links from 1C Батники для создания служб"
             }
           },
           {
@@ -174,13 +174,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "index.md",
+                "file": "1С/1C Батники для создания служб.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of index"
+              "title": "Outline of 1C Батники для создания служб"
             }
           }
         ]
@@ -203,9 +203,11 @@
   },
   "active": "2d8837e6263008e3",
   "lastOpenFiles": [
-    "base_file.base",
-    "1С/1С Бэкап базы с помощью PowerShell.md",
     "1С/1С Скрипт для вывода списков баз.md",
+    "1С/1C Батники для создания служб.md",
+    "1С/1С Бэкап базы с помощью PowerShell.md",
+    "index.md",
+    "base_file.base",
     "1С/1С Отказоустойчивый кластер.md",
     "MikroTik/index.md",
     "MikroTik/Terminal commands.md",
@@ -215,7 +217,6 @@
     "Linux/2021-09-02-multipathd.md",
     "Linux/2021-09-04-proxmox-cloud-init.md",
     "Linux/2021-09-06-docker.md",
-    "index.md",
     "DevOps/Не подтвержден 233735.crdownload",
     "DevOps/Untitled.md",
     "DevOps",
