@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "1С/1C Батники для создания служб.md",
+                "file": "1С/1С Скрипт для вывода списков баз.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "1C Батники для создания служб"
+              "title": "1С Скрипт для вывода списков баз"
             }
           }
         ],
@@ -109,7 +109,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "1С/1C Батники для создания служб.md",
+                "file": "1С/1С Скрипт для вывода списков баз.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -119,7 +119,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for 1C Батники для создания служб"
+              "title": "Backlinks for 1С Скрипт для вывода списков баз"
             }
           },
           {
@@ -128,12 +128,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "1С/1C Батники для создания служб.md",
+                "file": "1С/1С Скрипт для вывода списков баз.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from 1C Батники для создания служб"
+              "title": "Outgoing links from 1С Скрипт для вывода списков баз"
             }
           },
           {
@@ -174,13 +174,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "1С/1C Батники для создания служб.md",
+                "file": "1С/1С Скрипт для вывода списков баз.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of 1C Батники для создания служб"
+              "title": "Outline of 1С Скрипт для вывода списков баз"
             }
           }
         ]
@@ -203,16 +203,16 @@
   },
   "active": "2d8837e6263008e3",
   "lastOpenFiles": [
+    "1С/1С Отказоустойчивый кластер.md",
     "1С/1С Бэкап базы с помощью PowerShell.md",
     "1С/1C Батники для создания служб.md",
+    "DevOps/Developement Module.md",
     "1С/1С Скрипт для вывода списков баз.md",
-    "1С/1С Отказоустойчивый кластер.md",
     "index.md",
     "base_file.base",
     "MikroTik/index.md",
     "MikroTik/Terminal commands.md",
     "MikroTik/2025-01-15-mikrotik-capsman-cap-ac.md",
-    "DevOps/Developement Module.md",
     "Linux/2021-09-01-megacli.md",
     "Linux/2021-09-02-multipathd.md",
     "Linux/2021-09-04-proxmox-cloud-init.md",

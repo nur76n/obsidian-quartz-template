@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Солнечная Аналемма - Алматы</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #000; color: white; font-family: 'Segoe UI', sans-serif; }
+        #canvas-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
+        #ui-layer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            max-width: 320px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        .slider-container { margin-bottom: 15px; }
+        input[type=range] { width: 100%; accent-color: #fbbf24; cursor: pointer; }
+        select { background: #334155; color: white; border: 1px solid #475569; padding: 5px; border-radius: 4px; width: 100%; margin-top: 5px; cursor: pointer; }
+        .data-value { color: #fbbf24; font-weight: bold; }
+        .legend-item { display: flex; align-items: center; margin-top: 5px; font-size: 12px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+
+    <div id="ui-layer">
+        <h1 class="text-xl font-bold mb-1 text-yellow-400">Аналемма: Алматы</h1>
+        <p class="text-xs text-gray-400 mb-4">43.2° N, 76.9° E • UTC+5</p>
+
+        <div class="slider-container">
+            <label class="block text-sm mb-1">Время фиксации (Час): <span id="hour-val" class="data-value">13:00</span></label>
+            <input type="range" id="hour-slider" min="6" max="20" step="0.25" value="13">
+            <p class="text-xs text-gray-400 mt-1">Измените время, чтобы увидеть наклон аналеммы.</p>
+        </div>
+
+        <div class="slider-container">
+            <label class="block text-sm mb-1">Месяц: <span id="month-val" class="data-value">Май</span></label>
+            <input type="range" id="month-slider" min="0" max="11" step="1" value="4">
+        </div>
+        
+        <div class="slider-container" id="day-container">
+             <label class="block text-sm mb-1">День: <span id="day-val" class="data-value">1</span></label>
+             <input type="range" id="day-slider" min="1" max="31" value="1">
+        </div>
+
+        <div class="border-t border-gray-700 pt-3 mt-2">
+            <div class="grid grid-cols-2 gap-2 text-sm">
+                <div>Высота: <span id="altitude-display" class="data-value">--</span>°</div>
+                <div>Азимут: <span id="azimuth-display" class="data-value">--</span>°</div>
+            </div>
+        </div>
+
+        <div class="mt-4 border-t border-gray-700 pt-2">
+            <div class="legend-item"><div class="dot" style="background:#fbbf24"></div>Текущее положение</div>
+            <div class="legend-item"><div class="dot" style="background:#ef4444"></div>Выбранный месяц</div>
+            <div class="legend-item"><div class="dot" style="background:#ffffff"></div>Остальной год</div>
+        </div>
+    </div>
+
+    <script>
+        // Constants for Almaty
+        const LATITUDE = 43.2220;
+        const LONGITUDE = 76.8512;
+        const TIMEZONE = 5; // UTC+5
+
+        // Scene Setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0b1026);
+        scene.fog = new THREE.FogExp2(0x0b1026, 0.002);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        // Look from North (-Z) to South (+Z)
+        camera.position.set(0, 10, -90); 
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxPolarAngle = Math.PI / 2 - 0.02; // Don't go below ground
+        controls.minDistance = 5;
+        controls.maxDistance = 150;
+        controls.target.set(0, 10, 0); // Look somewhat at the sky center
+
+        // Environment
+        const groundGeometry = new THREE.PlaneGeometry(300, 300);
+        const groundMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0x1e293b, 
+            side: THREE.DoubleSide 
+        });
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        scene.add(ground);
+
+        // Grid
+        const gridHelper = new THREE.GridHelper(300, 50, 0x475569, 0x1e293b);
+        scene.add(gridHelper);
+
+        // Compass Markers
+        const fontLoader = new THREE.FontLoader(); 
+        function createLabel(text, x, z, color) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 256;
+            canvas.height = 256;
+            context.font = "Bold 100px Arial";
+            context.fillStyle = color;
+            context.textAlign = "center";
+            context.textBaseline = "middle";
+            context.fillText(text, 128, 128);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+            const sprite = new THREE.Sprite(spriteMaterial);
+            sprite.position.set(x, 5, z);
+            sprite.scale.set(10, 10, 1);
+            scene.add(sprite);
+            
+            // Add a line to ground
+            const points = [];
+            points.push(new THREE.Vector3(x, 0, z));
+            points.push(new THREE.Vector3(x, 5, z));
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x475569 }));
+            scene.add(line);
+        }
+
+        createLabel("N", 0, -80, "#ef4444"); // North (Red) - Behind camera initially
+        createLabel("S", 0, 80, "#ffffff");  // South - In front of camera initially
+        createLabel("E", 80, 0, "#ffffff");
+        createLabel("W", -80, 0, "#ffffff");
+        
+        // --- Mountains Generation (Trans-Ili Alatau) ---
+        // Generating a range of mountains to the South (Z+)
+        const mountainsGroup = new THREE.Group();
+        // Create multiple peaks
+        for(let i = 0; i < 40; i++) {
+            // Randomize height between 15 and 35 units (scaled to scene)
+            const h = 15 + Math.random() * 20; 
+            const r = h * 0.7; // Radius based on height
+            
+            // Grey body
+            const mGeo = new THREE.ConeGeometry(r, h, 5); // Low poly look
+            const mMat = new THREE.MeshBasicMaterial({ color: 0x1e293b }); // Dark bluish grey
+            const peak = new THREE.Mesh(mGeo, mMat);
+            
+            // Spread along the southern horizon arc
+            const angle = (Math.PI / 1.5) + (Math.random() * (Math.PI - (Math.PI / 1.5)) * 2 * (Math.random() - 0.5)); 
+            // Simplified: Spread along X axis at far Z
+            const xPos = (Math.random() - 0.5) * 200; 
+            const zPos = 90 + Math.random() * 40; // Far South
+            
+            peak.position.set(xPos, h/2 - 2, zPos);
+            peak.rotation.y = Math.random() * Math.PI;
+            
+            // Snow Cap
+            const sGeo = new THREE.ConeGeometry(r * 0.35, h * 0.35, 5);
+            const sMat = new THREE.MeshBasicMaterial({ color: 0xe2e8f0 }); // Off-white snow
+            const snow = new THREE.Mesh(sGeo, sMat);
+            // Position snow at top of peak
+            snow.position.set(0, h/2 - (h*0.35)/2 + 0.1, 0); 
+            
+            peak.add(snow);
+            mountainsGroup.add(peak);
+        }
+        scene.add(mountainsGroup);
+
+
+        // Solar Calculation Functions
+        function toRad(deg) { return deg * (Math.PI / 180); }
+        function toDeg(rad) { return rad * (180 / Math.PI); }
+
+        function calculateSunPosition(dayOfYear, hour, lat, lon) {
+            // Simplistic approximate calculation suitable for visualization
+            // Gamma represents the fractional year in radians
+            const gamma = (2 * Math.PI / 365) * (dayOfYear - 1 + (hour - 12) / 24);
+            
+            // Equation of time (in minutes)
+            const eqtime = 229.18 * (0.000075 + 0.001868 * Math.cos(gamma) - 0.032077 * Math.sin(gamma) - 0.014615 * Math.cos(2 * gamma) - 0.040849 * Math.sin(2 * gamma));
+            
+            // Solar declination angle (in radians)
+            const decl = 0.006918 - 0.399912 * Math.cos(gamma) + 0.070257 * Math.sin(gamma) - 0.006758 * Math.cos(2 * gamma) + 0.000907 * Math.sin(2 * gamma) - 0.002697 * Math.cos(3 * gamma) + 0.00148 * Math.sin(3 * gamma);
+
+            // Time offset in minutes
+            const timeOffset = eqtime + 4 * lon - 60 * TIMEZONE;
+            
+            // True Solar Time
+            const tst = hour * 60 + timeOffset;
+            
+            // Solar Hour Angle (in degrees)
+            let ha = (tst / 4) - 180;
+            ha = toRad(ha);
+
+            // Solar Zenith Angle (phi is latitude)
+            const phi = toRad(lat);
+            const zenith = Math.acos(Math.sin(phi) * Math.sin(decl) + Math.cos(phi) * Math.cos(decl) * Math.cos(ha));
+            
+            // Solar Azimuth Angle
+            let azimuth = Math.acos(((Math.sin(decl) * Math.cos(phi)) - (Math.cos(decl) * Math.sin(phi) * Math.cos(ha))) / Math.sin(zenith));
+
+            if (ha > 0) {
+                azimuth = 2 * Math.PI - azimuth; // Fix azimuth range
+            }
+
+            // Convert to elevation (altitude)
+            const elevation = (Math.PI / 2) - zenith;
+
+            return {
+                azimuth: azimuth, // radians, 0 is South in standard formulas often, but let's correct for 3D world where -Z is North usually
+                elevation: elevation // radians
+            };
+        }
+
+        // 3D Objects for Analemma
+        const sunGeometry = new THREE.SphereGeometry(2, 32, 32);
+        const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
+        const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
+        scene.add(sunMesh);
+
+        // Glow
+        const spriteMaterial = new THREE.SpriteMaterial({ 
+            map: new THREE.TextureLoader().load('https://threejs.org/examples/textures/sprites/glow.png'), 
+            color: 0xfbbf24, 
+            transparent: true, 
+            blending: THREE.AdditiveBlending 
+        });
+        const sprite = new THREE.Sprite(spriteMaterial);
+        sprite.scale.set(15, 15, 1.0);
+        sunMesh.add(sprite);
+
+        let analemmaCurveMesh = null;
+        let monthHighlightMesh = null;
+
+        const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+        const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+        // Date helper
+        function getDayOfYear(month, day) {
+            let dayOfYear = 0;
+            for (let i = 0; i < month; i++) {
+                dayOfYear += daysInMonth[i];
+            }
+            return dayOfYear + day;
+        }
+
+        // Main Calculation Loop
+        function updateVisualization() {
+            const hour = parseFloat(document.getElementById('hour-slider').value);
+            const selectedMonth = parseInt(document.getElementById('month-slider').value);
+            const selectedDay = parseInt(document.getElementById('day-slider').value);
+
+            // Format hour display
+            const h = Math.floor(hour);
+            const m = Math.round((hour - h) * 60);
+            document.getElementById('hour-val').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
+
+            // Update Month Name
+            document.getElementById('month-val').innerText = monthNames[selectedMonth];
+
+            // 1. Draw Full Analemma (White/Gray)
+            if (analemmaCurveMesh) scene.remove(analemmaCurveMesh);
+            if (monthHighlightMesh) scene.remove(monthHighlightMesh);
+
+            const points = [];
+            const monthPoints = [];
+            const radius = 60; // Distance of the "sky dome"
+
+            // Loop through whole year
+            for (let d = 1; d <= 365; d += 2) {
+                const pos = calculateSunPosition(d, hour, LATITUDE, LONGITUDE);
+                
+                // Convert spherical (az, el) to Cartesian (x, y, z)
+                // In Three.js: Y is Up. 
+                
+                const phi = pos.elevation; 
+                const theta = pos.azimuth + Math.PI; // Rotate to match compass
+
+                // FIX: Negate X to align with East (+X) / West (-X) given the azimuth formula
+                const x = -radius * Math.cos(phi) * Math.sin(theta);
+                const y = radius * Math.sin(phi);
+                const z = radius * Math.cos(phi) * Math.cos(theta);
+
+                // Filter points below horizon for visual clarity (optional, but analemma usually goes below horizon at night)
+                if (y > -5) {
+                    points.push(new THREE.Vector3(x, y, z));
+                    
+                    // Check if this day belongs to selected month
+                    // Estimate month from day of year roughly
+                    let tempD = d;
+                    let mIdx = 0;
+                    while(tempD > daysInMonth[mIdx]) {
+                        tempD -= daysInMonth[mIdx];
+                        mIdx++;
+                    }
+                    // Handle edge case for day 365
+                    if (mIdx >= 12) mIdx = 11;
+
+                    if (mIdx === selectedMonth) {
+                        monthPoints.push(new THREE.Vector3(x, y, z));
+                    }
+                }
+            }
+
+            // Create Geometry for Full Loop
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const material = new THREE.LineBasicMaterial({ color: 0x64748b, opacity: 0.5, transparent: true });
+            analemmaCurveMesh = new THREE.Line(geometry, material);
+            scene.add(analemmaCurveMesh);
+
+            // Create Geometry for Selected Month
+            if (monthPoints.length > 0) {
+                const mGeo = new THREE.BufferGeometry().setFromPoints(monthPoints);
+                const mMat = new THREE.LineBasicMaterial({ color: 0xef4444, linewidth: 3 });
+                monthHighlightMesh = new THREE.Line(mGeo, mMat);
+                scene.add(monthHighlightMesh);
+            }
+
+            // 2. Position the Sun (Yellow Sphere)
+            let specificDay = getDayOfYear(selectedMonth, selectedDay);
+
+            const currentPos = calculateSunPosition(specificDay, hour, LATITUDE, LONGITUDE);
+            const cPhi = currentPos.elevation;
+            const cTheta = currentPos.azimuth + Math.PI;
+
+            // FIX: Apply same X negation here
+            sunMesh.position.x = -radius * Math.cos(cPhi) * Math.sin(cTheta);
+            sunMesh.position.y = radius * Math.sin(cPhi);
+            sunMesh.position.z = radius * Math.cos(cPhi) * Math.cos(cTheta);
+
+            // Update UI Stats
+            document.getElementById('altitude-display').innerText = toDeg(currentPos.elevation).toFixed(1);
+            document.getElementById('azimuth-display').innerText = toDeg(currentPos.azimuth).toFixed(1);
+        }
+
+        // Event Listeners
+        document.getElementById('hour-slider').addEventListener('input', updateVisualization);
+        
+        document.getElementById('month-slider').addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            
+            // Adjust day slider max based on month
+            const daySlider = document.getElementById('day-slider');
+            const currentDay = parseInt(daySlider.value);
+            const maxDays = daysInMonth[val];
+            
+            daySlider.max = maxDays;
+            if (currentDay > maxDays) {
+                daySlider.value = maxDays;
+                document.getElementById('day-val').innerText = maxDays;
+            }
+            
+            updateVisualization();
+        });
+
+        document.getElementById('day-slider').addEventListener('input', (e) => {
+            document.getElementById('day-val').innerText = e.target.value;
+            updateVisualization();
+        });
+
+        // Handle Window Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Init
+        updateVisualization();
+        animate();
+
+    </script>
+</body>
+</html>
