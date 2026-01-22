@@ -41,7 +41,7 @@
 
         <div class="slider-container">
             <label class="block text-sm mb-1">Время фиксации (Час): <span id="hour-val" class="data-value">13:00</span></label>
-            <input type="range" id="hour-slider" min="6" max="20" step="0.25" value="13">
+            <input type="range" id="hour-slider" min="0" max="24" step="0.25" value="13">
             <p class="text-xs text-gray-400 mt-1">Измените время, чтобы увидеть наклон аналеммы.</p>
         </div>
 
@@ -294,25 +294,25 @@
                 const y = radius * Math.sin(phi);
                 const z = radius * Math.cos(phi) * Math.cos(theta);
 
-                // Filter points below horizon for visual clarity (optional, but analemma usually goes below horizon at night)
-                if (y > -5) {
-                    points.push(new THREE.Vector3(x, y, z));
-                    
-                    // Check if this day belongs to selected month
-                    // Estimate month from day of year roughly
-                    let tempD = d;
-                    let mIdx = 0;
-                    while(tempD > daysInMonth[mIdx]) {
-                        tempD -= daysInMonth[mIdx];
-                        mIdx++;
-                    }
-                    // Handle edge case for day 365
-                    if (mIdx >= 12) mIdx = 11;
-
-                    if (mIdx === selectedMonth) {
-                        monthPoints.push(new THREE.Vector3(x, y, z));
-                    }
+                // Removed visual clipping for horizon so 24h cycle works better for abstract visualization
+                // if (y > -5) {
+                points.push(new THREE.Vector3(x, y, z));
+                
+                // Check if this day belongs to selected month
+                // Estimate month from day of year roughly
+                let tempD = d;
+                let mIdx = 0;
+                while(tempD > daysInMonth[mIdx]) {
+                    tempD -= daysInMonth[mIdx];
+                    mIdx++;
                 }
+                // Handle edge case for day 365
+                if (mIdx >= 12) mIdx = 11;
+
+                if (mIdx === selectedMonth) {
+                    monthPoints.push(new THREE.Vector3(x, y, z));
+                }
+                // }
             }
 
             // Create Geometry for Full Loop
