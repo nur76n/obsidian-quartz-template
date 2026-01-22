@@ -173,8 +173,6 @@
                     const cube = new THREE.Mesh(geometry, material);
                     
                     // Позиция
-                    // В Three.js (0,0) - центр. В 2D (0,0) - левый верхний угол.
-                    // Нужно смещение.
                     const centerX = obj.x + obj.w / 2 - siteConfig.width / 2;
                     const centerZ = obj.y + obj.h / 2 - siteConfig.height / 2;
                     const centerY = (obj.height || 0.1) / 2;
@@ -206,6 +204,7 @@
             const PIXELS_PER_METER = 20;
 
             const [viewMode, setViewMode] = useState('2d'); // '2d' or '3d'
+            const [selectedId, setSelectedId] = useState(null); // ID выбранного объекта
             
             // --- Состояние с загрузкой из LocalStorage ---
             const [siteConfig, setSiteConfig] = useState(() => {
@@ -242,14 +241,27 @@
             const containerRef = useRef(null);
 
             // --- Логика перетаскивания (2D) ---
-            const handleStart = (clientX, clientY, id) => {
-                if (viewMode === '3d') return; // В 3D не таскаем
+            const handleStart = (clientX, clientY, id, e) => {
+                if (viewMode === '3d') return;
+                
+                // Останавливаем всплытие, чтобы не сработал клик по фону (деселект)
+                if(e && e.stopPropagation) e.stopPropagation();
+
                 setDraggingId(id);
+                setSelectedId(id); // Выбираем объект при начале перетаскивания
+
                 const obj = objects.find(o => o.id === id);
                 const rect = containerRef.current.getBoundingClientRect();
                 const mouseX = (clientX - rect.left) / PIXELS_PER_METER;
                 const mouseY = (clientY - rect.top) / PIXELS_PER_METER;
                 setOffset({ x: mouseX - obj.x, y: mouseY - obj.y });
+            };
+
+            // Клик по фону для снятия выделения
+            const handleBackgroundStart = (e) => {
+                 if (e.target === containerRef.current) {
+                    setSelectedId(null);
+                 }
             };
 
             const handleMove = (clientX, clientY) => {
@@ -268,9 +280,9 @@
 
             const handleEnd = () => setDraggingId(null);
 
-            const onMouseDown = (e, id) => handleStart(e.clientX, e.clientY, id);
+            const onMouseDown = (e, id) => handleStart(e.clientX, e.clientY, id, e);
             const onMouseMove = (e) => handleMove(e.clientX, e.clientY);
-            const onTouchStart = (e, id) => handleStart(e.touches[0].clientX, e.touches[0].clientY, id);
+            const onTouchStart = (e, id) => handleStart(e.touches[0].clientX, e.touches[0].clientY, id, e);
             const onTouchMove = (e) => handleMove(e.touches[0].clientX, e.touches[0].clientY);
 
             // --- Управление объектами ---
@@ -288,6 +300,7 @@
             const deleteObject = (id) => {
                 if (confirm('Удалить этот объект?')) {
                     setObjects(prev => prev.filter(o => o.id !== id));
+                    if (selectedId === id) setSelectedId(null);
                 }
             };
 
@@ -302,6 +315,7 @@
                     y: siteConfig.height / 2 - 1.5,
                     color: 'bg-yellow-100 border-yellow-500'
                 }]);
+                setSelectedId(newId);
             };
 
             return (
@@ -375,14 +389,20 @@
                             <h3 className="font-bold text-gray-700 mb-2 text-sm">Объекты</h3>
                             <div className="space-y-3">
                                 {objects.map(obj => (
-                                    <div key={obj.id} className={`p-3 rounded border ${obj.color.split(' ')[0]} bg-opacity-30 relative transition hover:shadow-sm`}>
+                                    <div 
+                                        key={obj.id} 
+                                        onClick={() => setSelectedId(obj.id)}
+                                        className={`p-3 rounded border cursor-pointer transition 
+                                            ${selectedId === obj.id ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:shadow-sm bg-white'} 
+                                            ${obj.color.split(' ')[0].replace('bg-', 'bg-opacity-20 ')} relative`}
+                                    >
                                         <div className="flex justify-between items-start mb-2">
                                             <input 
                                                 type="text" value={obj.label}
                                                 onChange={(e) => updateObject(obj.id, 'label', e.target.value)}
                                                 className="font-bold bg-transparent border-b border-gray-400 w-full mr-2 focus:outline-none text-sm"
                                             />
-                                            <button onClick={() => deleteObject(obj.id)} className="text-red-400 hover:text-red-600 font-bold px-1">×</button>
+                                            <button onClick={(e) => { e.stopPropagation(); deleteObject(obj.id); }} className="text-red-400 hover:text-red-600 font-bold px-1">×</button>
                                         </div>
                                         
                                         <div className="grid grid-cols-3 gap-2 mb-2">
@@ -411,7 +431,7 @@
 
                                         <div className="flex justify-between items-center text-[10px]">
                                             <button 
-                                                onClick={() => rotateObject(obj.id)}
+                                                onClick={(e) => { e.stopPropagation(); rotateObject(obj.id); }}
                                                 className="bg-white border hover:bg-gray-100 px-2 py-1 rounded flex items-center gap-1 shadow-sm"
                                             >
                                                 ↻ Повернуть
@@ -426,7 +446,7 @@
                         <div className="flex-1 overflow-hidden bg-gray-100 relative">
                             
                             {viewMode === '2d' ? (
-                                <div className="w-full h-full overflow-auto p-8 flex justify-center items-start">
+                                <div className="w-full h-full overflow-auto p-8 flex justify-center items-start" onMouseDown={handleBackgroundStart}>
                                     <div 
                                         ref={containerRef}
                                         className="bg-white shadow-xl relative grid-pattern flex-shrink-0 transition-all duration-300"
@@ -450,7 +470,7 @@
                                                 onTouchStart={(e) => onTouchStart(e, obj.id)}
                                                 className={`absolute border-2 flex flex-col items-center justify-center cursor-move select-none no-select shadow-sm hover:shadow-md transition-shadow 
                                                     ${obj.color} 
-                                                    ${draggingId === obj.id ? 'z-50 ring-2 ring-blue-400 opacity-90' : 'z-10'}`}
+                                                    ${(draggingId === obj.id || selectedId === obj.id) ? 'z-50 ring-2 ring-blue-500 opacity-95' : 'z-10'}`}
                                                 style={{
                                                     width: obj.w * PIXELS_PER_METER,
                                                     height: obj.h * PIXELS_PER_METER,
@@ -459,8 +479,61 @@
                                                 }}
                                                 title={obj.label}
                                             >
-                                                <div className="text-[10px] font-bold text-center leading-tight px-1 truncate w-full">{obj.label}</div>
-                                                <div className="text-[9px] opacity-60 text-center hidden sm:block">{obj.w}x{obj.h}</div>
+                                                {/* Отображение размеров до границ при выделении */}
+                                                {selectedId === obj.id && (
+                                                    <>
+                                                        {/* Линия вверх (Top) */}
+                                                        <div className="absolute border-l border-red-500 border-dashed" style={{ 
+                                                            height: obj.y * PIXELS_PER_METER, 
+                                                            top: -obj.y * PIXELS_PER_METER, 
+                                                            left: '50%',
+                                                            width: '1px'
+                                                        }}></div>
+                                                        <div className="absolute bg-white px-1 text-[10px] font-bold text-red-600 rounded border border-red-200 shadow-sm whitespace-nowrap z-50" style={{
+                                                            top: -obj.y * PIXELS_PER_METER / 2 - 10,
+                                                            left: '50%', transform: 'translateX(-50%)'
+                                                        }}>{obj.y.toFixed(1)} м</div>
+
+                                                        {/* Линия вниз (Bottom) */}
+                                                        <div className="absolute border-l border-red-500 border-dashed" style={{ 
+                                                            height: (siteConfig.height - obj.y - obj.h) * PIXELS_PER_METER, 
+                                                            bottom: -(siteConfig.height - obj.y - obj.h) * PIXELS_PER_METER, 
+                                                            left: '50%',
+                                                            width: '1px'
+                                                        }}></div>
+                                                        <div className="absolute bg-white px-1 text-[10px] font-bold text-red-600 rounded border border-red-200 shadow-sm whitespace-nowrap z-50" style={{
+                                                            bottom: -(siteConfig.height - obj.y - obj.h) * PIXELS_PER_METER / 2 - 10,
+                                                            left: '50%', transform: 'translateX(-50%)'
+                                                        }}>{(siteConfig.height - obj.y - obj.h).toFixed(1)} м</div>
+
+                                                        {/* Линия влево (Left) */}
+                                                        <div className="absolute border-t border-red-500 border-dashed" style={{ 
+                                                            width: obj.x * PIXELS_PER_METER, 
+                                                            left: -obj.x * PIXELS_PER_METER, 
+                                                            top: '50%',
+                                                            height: '1px'
+                                                        }}></div>
+                                                        <div className="absolute bg-white px-1 text-[10px] font-bold text-red-600 rounded border border-red-200 shadow-sm whitespace-nowrap z-50" style={{
+                                                            left: -obj.x * PIXELS_PER_METER / 2, transform: 'translate(-50%, -50%)',
+                                                            top: '50%'
+                                                        }}>{obj.x.toFixed(1)} м</div>
+
+                                                        {/* Линия вправо (Right) */}
+                                                        <div className="absolute border-t border-red-500 border-dashed" style={{ 
+                                                            width: (siteConfig.width - obj.x - obj.w) * PIXELS_PER_METER, 
+                                                            right: -(siteConfig.width - obj.x - obj.w) * PIXELS_PER_METER, 
+                                                            top: '50%',
+                                                            height: '1px'
+                                                        }}></div>
+                                                        <div className="absolute bg-white px-1 text-[10px] font-bold text-red-600 rounded border border-red-200 shadow-sm whitespace-nowrap z-50" style={{
+                                                            right: -(siteConfig.width - obj.x - obj.w) * PIXELS_PER_METER / 2, transform: 'translate(50%, -50%)',
+                                                            top: '50%'
+                                                        }}>{(siteConfig.width - obj.x - obj.w).toFixed(1)} м</div>
+                                                    </>
+                                                )}
+
+                                                <div className="text-[10px] font-bold text-center leading-tight px-1 truncate w-full pointer-events-none">{obj.label}</div>
+                                                <div className="text-[9px] opacity-60 text-center hidden sm:block pointer-events-none">{obj.w}x{obj.h}</div>
                                             </div>
                                         ))}
                                     </div>
