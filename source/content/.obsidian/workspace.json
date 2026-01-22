@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "1С/1С Скрипт для вывода списков баз.md",
-                "mode": "preview",
+                "file": "Miscellaneous/Аналемма Алматы.md",
+                "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "1С Скрипт для вывода списков баз"
+              "title": "Аналемма Алматы"
             }
           }
         ],
@@ -174,13 +174,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "1С/1С Скрипт для вывода списков баз.md",
+                "file": "Miscellaneous/Аналемма Алматы.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of 1С Скрипт для вывода списков баз"
+              "title": "Outline of Аналемма Алматы"
             }
           }
         ]
@@ -203,11 +203,13 @@
   },
   "active": "2d8837e6263008e3",
   "lastOpenFiles": [
+    "1С/1С Скрипт для вывода списков баз.md",
+    "Miscellaneous/Аналемма Алматы.md",
+    "Miscellaneous",
     "1С/1С Отказоустойчивый кластер.md",
     "1С/1С Бэкап базы с помощью PowerShell.md",
     "1С/1C Батники для создания служб.md",
     "DevOps/Developement Module.md",
-    "1С/1С Скрипт для вывода списков баз.md",
     "index.md",
     "base_file.base",
     "MikroTik/index.md",
@@ -229,7 +231,6 @@
     "img/Pasted image 20251209191132.png",
     "img",
     "Не подтвержден 632395.crdownload",
-    "Не подтвержден 7858.crdownload",
-    "MikroTik"
+    "Не подтвержден 7858.crdownload"
   ]
 }
