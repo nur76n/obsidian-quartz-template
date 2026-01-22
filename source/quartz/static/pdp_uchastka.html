@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Конструктор Участка</title>
+    <!-- Подключаем React и ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Подключаем Babel для JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Подключаем Tailwind CSS для стилей -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f3f4f6; }
+        .grid-pattern {
+            background-image: 
+                linear-gradient(#e5e7eb 1px, transparent 1px), 
+                linear-gradient(90deg, #e5e7eb 1px, transparent 1px);
+        }
+        /* Отключаем выделение текста при перетаскивании */
+        .no-select { user-select: none; -webkit-user-select: none; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
+
+        const App = () => {
+            // Настройки масштаба
+            const PIXELS_PER_METER = 20;
+
+            // Состояние участка
+            const [siteConfig, setSiteConfig] = useState({
+                width: 24.5,
+                height: 24.5
+            });
+
+            // Состояние объектов
+            const [objects, setObjects] = useState([
+                { id: 'house', label: 'Дом', w: 12, h: 10, x: 3, y: 3, color: 'bg-red-100 border-red-500' },
+                { id: 'cont1', label: 'Контейнер 1', w: 12.2, h: 2.44, x: 12, y: 21, color: 'bg-green-100 border-green-500' },
+                { id: 'cont2', label: 'Контейнер 2', w: 12.2, h: 2.44, x: 0.5, y: 21, color: 'bg-blue-100 border-blue-500' },
+                { id: 'parking', label: 'Парковка', w: 6, h: 5, x: 18, y: 0.5, color: 'bg-slate-100 border-slate-400 border-dashed' }
+            ]);
+
+            const [draggingId, setDraggingId] = useState(null);
+            const [offset, setOffset] = useState({ x: 0, y: 0 });
+            const containerRef = useRef(null);
+
+            // --- Логика перетаскивания (Мышь + Touch) ---
+            const handleStart = (clientX, clientY, id) => {
+                setDraggingId(id);
+                const obj = objects.find(o => o.id === id);
+                const rect = containerRef.current.getBoundingClientRect();
+                const mouseX = (clientX - rect.left) / PIXELS_PER_METER;
+                const mouseY = (clientY - rect.top) / PIXELS_PER_METER;
+                setOffset({ x: mouseX - obj.x, y: mouseY - obj.y });
+            };
+
+            const handleMove = (clientX, clientY) => {
+                if (!draggingId) return;
+                const rect = containerRef.current.getBoundingClientRect();
+                let newX = (clientX - rect.left) / PIXELS_PER_METER - offset.x;
+                let newY = (clientY - rect.top) / PIXELS_PER_METER - offset.y;
+
+                const obj = objects.find(o => o.id === draggingId);
+                
+                // Ограничение границами участка
+                newX = Math.max(0, Math.min(newX, siteConfig.width - obj.w));
+                newY = Math.max(0, Math.min(newY, siteConfig.height - obj.h));
+
+                setObjects(prev => prev.map(o => o.id === draggingId ? { ...o, x: newX, y: newY } : o));
+            };
+
+            const handleEnd = () => setDraggingId(null);
+
+            // Обработчики мыши
+            const onMouseDown = (e, id) => handleStart(e.clientX, e.clientY, id);
+            const onMouseMove = (e) => handleMove(e.clientX, e.clientY);
+            
+            // Обработчики тачскрина
+            const onTouchStart = (e, id) => {
+                // e.preventDefault(); // Можно включить, если скролл мешает
+                handleStart(e.touches[0].clientX, e.touches[0].clientY, id);
+            };
+            const onTouchMove = (e) => {
+                handleMove(e.touches[0].clientX, e.touches[0].clientY);
+            };
+
+            // --- Управление объектами ---
+            const updateObject = (id, field, value) => {
+                setObjects(prev => prev.map(o => o.id === id ? { ...o, [field]: value } : o));
+            };
+
+            const rotateObject = (id) => {
+                setObjects(prev => prev.map(o => {
+                    if (o.id !== id) return o;
+                    return { ...o, w: o.h, h: o.w }; // Меняем местами ширину и высоту
+                }));
+            };
+
+            const deleteObject = (id) => {
+                if (confirm('Удалить этот объект?')) {
+                    setObjects(prev => prev.filter(o => o.id !== id));
+                }
+            };
+
+            const addObject = () => {
+                const newId = 'obj_' + Date.now();
+                setObjects([...objects, {
+                    id: newId,
+                    label: 'Новый объект',
+                    w: 3, h: 3,
+                    x: siteConfig.width / 2 - 1.5,
+                    y: siteConfig.height / 2 - 1.5,
+                    color: 'bg-yellow-100 border-yellow-500'
+                }]);
+            };
+
+            return (
+                <div className="flex flex-col h-screen overflow-hidden" onMouseUp={handleEnd} onMouseLeave={handleEnd} onTouchEnd={handleEnd}>
+                    {/* Хедер */}
+                    <header className="bg-white border-b p-4 shadow-sm z-20 flex justify-between items-center">
+                        <div>
+                            <h1 className="text-xl font-bold text-gray-800">Планировщик Участка</h1>
+                            <p className="text-xs text-gray-500">1 клетка = 1 метр. Отступы: 3м для дома, 1м для хозпостроек.</p>
+                        </div>
+                        <button 
+                            onClick={addObject}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow transition"
+                        >
+                            + Добавить объект
+                        </button>
+                    </header>
+
+                    <div className="flex flex-1 overflow-hidden">
+                        {/* Левая панель: Настройки */}
+                        <div className="w-80 bg-white border-r overflow-y-auto p-4 z-10 shadow-lg flex-shrink-0">
+                            
+                            {/* Настройки участка */}
+                            <div className="mb-6 bg-gray-50 p-3 rounded border">
+                                <h3 className="font-bold text-gray-700 mb-2">Размеры участка (м)</h3>
+                                <div className="flex gap-2">
+                                    <div>
+                                        <label className="text-xs block text-gray-500">Ширина</label>
+                                        <input 
+                                            type="number" 
+                                            value={siteConfig.width}
+                                            onChange={(e) => setSiteConfig({...siteConfig, width: Number(e.target.value)})}
+                                            className="w-full border rounded p-1"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs block text-gray-500">Глубина</label>
+                                        <input 
+                                            type="number" 
+                                            value={siteConfig.height}
+                                            onChange={(e) => setSiteConfig({...siteConfig, height: Number(e.target.value)})}
+                                            className="w-full border rounded p-1"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Список объектов */}
+                            <h3 className="font-bold text-gray-700 mb-2">Объекты</h3>
+                            <div className="space-y-3">
+                                {objects.map(obj => (
+                                    <div key={obj.id} className={`p-3 rounded border ${obj.color.split(' ')[0]} bg-opacity-30`}>
+                                        <div className="flex justify-between items-start mb-2">
+                                            <input 
+                                                type="text" 
+                                                value={obj.label}
+                                                onChange={(e) => updateObject(obj.id, 'label', e.target.value)}
+                                                className="font-bold bg-transparent border-b border-gray-400 w-full mr-2 focus:outline-none"
+                                            />
+                                            <button onClick={() => deleteObject(obj.id)} className="text-red-500 hover:text-red-700 font-bold">×</button>
+                                        </div>
+                                        
+                                        <div className="flex gap-2 mb-2">
+                                            <div className="flex-1">
+                                                <label className="text-[10px] text-gray-500">Ширина (м)</label>
+                                                <input 
+                                                    type="number" step="0.1"
+                                                    value={obj.w}
+                                                    onChange={(e) => updateObject(obj.id, 'w', Number(e.target.value))}
+                                                    className="w-full border rounded p-1 text-sm"
+                                                />
+                                            </div>
+                                            <div className="flex-1">
+                                                <label className="text-[10px] text-gray-500">Длина (м)</label>
+                                                <input 
+                                                    type="number" step="0.1"
+                                                    value={obj.h}
+                                                    onChange={(e) => updateObject(obj.id, 'h', Number(e.target.value))}
+                                                    className="w-full border rounded p-1 text-sm"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex justify-between items-center text-xs">
+                                            <span className="font-mono text-gray-500">
+                                                x:{obj.x.toFixed(1)} y:{obj.y.toFixed(1)}
+                                            </span>
+                                            <button 
+                                                onClick={() => rotateObject(obj.id)}
+                                                className="bg-white border hover:bg-gray-100 px-2 py-1 rounded flex items-center gap-1"
+                                            >
+                                                ↻ Повернуть
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Правая панель: Канвас */}
+                        <div className="flex-1 overflow-auto bg-gray-100 p-8 relative flex justify-center items-start">
+                             <div 
+                                ref={containerRef}
+                                className="bg-white shadow-xl relative grid-pattern flex-shrink-0 transition-all duration-300"
+                                style={{ 
+                                    width: siteConfig.width * PIXELS_PER_METER, 
+                                    height: siteConfig.height * PIXELS_PER_METER,
+                                    backgroundSize: `${PIXELS_PER_METER}px ${PIXELS_PER_METER}px`
+                                }}
+                                onMouseMove={onMouseMove}
+                                onTouchMove={onTouchMove}
+                            >
+                                {/* Линейки размеров участка */}
+                                <div className="absolute -top-6 w-full text-center text-gray-500 text-sm">{siteConfig.width} м</div>
+                                <div className="absolute -left-6 top-0 h-full flex items-center">
+                                    <span className="text-gray-500 text-sm -rotate-90 whitespace-nowrap">{siteConfig.height} м</span>
+                                </div>
+
+                                {objects.map(obj => (
+                                    <div
+                                        key={obj.id}
+                                        onMouseDown={(e) => onMouseDown(e, obj.id)}
+                                        onTouchStart={(e) => onTouchStart(e, obj.id)}
+                                        className={`absolute border-2 flex flex-col items-center justify-center cursor-move select-none no-select shadow-sm hover:shadow-md transition-shadow 
+                                            ${obj.color} 
+                                            ${draggingId === obj.id ? 'z-50 ring-2 ring-blue-400 opacity-90' : 'z-10'}`}
+                                        style={{
+                                            width: obj.w * PIXELS_PER_METER,
+                                            height: obj.h * PIXELS_PER_METER,
+                                            left: obj.x * PIXELS_PER_METER,
+                                            top: obj.y * PIXELS_PER_METER,
+                                        }}
+                                        title={obj.label}
+                                    >
+                                        <div className="text-[10px] font-bold text-center leading-tight px-1 truncate w-full">{obj.label}</div>
+                                        { (obj.w > 2 && obj.h > 2) && (
+                                            <div className="text-[9px] opacity-60 text-center">{obj.w} x {obj.h}</div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
