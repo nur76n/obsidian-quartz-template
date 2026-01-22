@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Miscellaneous/Аналемма Алматы.md",
+                "file": "Miscellaneous/test.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Аналемма Алматы"
+              "title": "test"
             }
           }
         ],
@@ -174,13 +174,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Miscellaneous/Аналемма Алматы.md",
+                "file": "Miscellaneous/test.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Аналемма Алматы"
+              "title": "Outline of test"
             }
           }
         ]
@@ -203,8 +203,11 @@
   },
   "active": "2d8837e6263008e3",
   "lastOpenFiles": [
-    "1С/1С Скрипт для вывода списков баз.md",
+    "Linux/2021-09-01-megacli.md",
+    "Miscellaneous/test.md",
     "Miscellaneous/Аналемма Алматы.md",
+    "MikroTik/2025-01-15-mikrotik-capsman-cap-ac.md",
+    "1С/1С Скрипт для вывода списков баз.md",
     "Miscellaneous",
     "1С/1С Отказоустойчивый кластер.md",
     "1С/1С Бэкап базы с помощью PowerShell.md",
@@ -214,8 +217,6 @@
     "base_file.base",
     "MikroTik/index.md",
     "MikroTik/Terminal commands.md",
-    "MikroTik/2025-01-15-mikrotik-capsman-cap-ac.md",
-    "Linux/2021-09-01-megacli.md",
     "Linux/2021-09-02-multipathd.md",
     "Linux/2021-09-04-proxmox-cloud-init.md",
     "Linux/2021-09-06-docker.md",
