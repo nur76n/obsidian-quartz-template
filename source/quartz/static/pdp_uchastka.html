@@ -23,11 +23,32 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Глобальная инициализация Firebase, чтобы React мог её использовать
+        // --- НАСТРОЙКИ ВАШЕГО СЕРВЕРА (Заполните это для работы на своем сайте) ---
+        const MY_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyDw93skiZDxjAdY_CXreJyWSAifwV6243I",
+            authDomain: "db-for-sites.firebaseapp.com",
+            projectId: "db-for-sites",
+            storageBucket: "db-for-sites.firebasestorage.app",
+            messagingSenderId: "337767573843",
+            appId: "1:337767573843:web:75e6214ff6ee70cfdcd9a6",
+            measurementId: "G-3YSQ1GG4V4"
+        };
+
+        // Глобальная инициализация Firebase
         window.initFirebase = async () => {
-             // Используем конфигурацию из среды выполнения
-            const firebaseConfig = JSON.parse(window.__firebase_config || '{}');
-            const appId = window.__app_id || 'default-app';
+             // 1. Пытаемся взять ваши личные настройки
+            let firebaseConfig = MY_FIREBASE_CONFIG;
+            let appId = 'my-site-planner'; // Название коллекции в базе
+
+            // 2. Если их нет, пытаемся взять настройки среды (для демо)
+            if (!firebaseConfig.apiKey) {
+                try {
+                    firebaseConfig = JSON.parse(window.__firebase_config || '{}');
+                    appId = window.__app_id || 'default-app';
+                } catch (e) {
+                    console.warn("Нет конфигурации Firebase.");
+                }
+            }
             
             if (!firebaseConfig.apiKey) {
                 console.warn("Firebase config not found. Local mode only.");
