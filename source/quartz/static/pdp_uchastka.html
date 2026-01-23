@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Планировщик: Облачная версия</title>
+    <title>3D Планировщик Участка</title>
     
     <!-- React и ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -16,52 +16,6 @@
     <!-- Three.js (для 3D) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- НАСТРОЙКИ ВАШЕГО СЕРВЕРА ---
-        const MY_FIREBASE_CONFIG = {
-            apiKey: "AIzaSyDw93skiZDxjAdY_CXreJyWSAifwV6243I",
-            authDomain: "db-for-sites.firebaseapp.com",
-            projectId: "db-for-sites",
-            storageBucket: "db-for-sites.firebasestorage.app",
-            messagingSenderId: "337767573843",
-            appId: "1:337767573843:web:75e6214ff6ee70cfdcd9a6",
-            measurementId: "G-3YSQ1GG4V4"
-        };
-
-        // Глобальная инициализация Firebase
-        window.initFirebase = async () => {
-             // 1. Пытаемся взять ваши личные настройки
-            let firebaseConfig = MY_FIREBASE_CONFIG;
-            let appId = 'my-site-planner'; 
-
-            // 2. Если их нет, пытаемся взять настройки среды (для демо)
-            if (!firebaseConfig.apiKey) {
-                try {
-                    firebaseConfig = JSON.parse(window.__firebase_config || '{}');
-                    appId = window.__app_id || 'default-app';
-                } catch (e) {
-                    console.warn("Нет конфигурации Firebase.");
-                }
-            }
-            
-            if (!firebaseConfig.apiKey) {
-                console.warn("Firebase config not found. Local mode only.");
-                return null;
-            }
-
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            const db = getFirestore(app);
-
-            return { auth, db, appId, signInAnonymously, signInWithCustomToken, onAuthStateChanged, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, serverTimestamp, query, orderBy };
-        };
-    </script>
 
     <style>
         body { background-color: #f3f4f6; overflow: hidden; }
@@ -71,49 +25,54 @@
                 linear-gradient(90deg, #e5e7eb 1px, transparent 1px);
         }
         .no-select { user-select: none; -webkit-user-select: none; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        /* Стили для 3D контейнера */
+        #canvas-3d { outline: none; }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useRef, useEffect } = React;
+        const { useState, useRef, useEffect, useLayoutEffect } = React;
 
         // --- Вспомогательные функции ---
+        
+        // Преобразование Tailwind классов в HEX цвета для 3D
         const getHexColor = (tailwindClass) => {
-            if (tailwindClass.includes('red')) return 0xfca5a5;
-            if (tailwindClass.includes('green')) return 0x86efac;
-            if (tailwindClass.includes('blue')) return 0x93c5fd;
-            if (tailwindClass.includes('slate')) return 0xcbd5e1;
-            if (tailwindClass.includes('yellow')) return 0xfde047;
+            if (tailwindClass.includes('red')) return 0xfca5a5;    // red-300
+            if (tailwindClass.includes('green')) return 0x86efac;  // green-300
+            if (tailwindClass.includes('blue')) return 0x93c5fd;   // blue-300
+            if (tailwindClass.includes('slate')) return 0xcbd5e1;  // slate-300
+            if (tailwindClass.includes('yellow')) return 0xfde047; // yellow-300
             return 0xcccccc;
         };
 
+        // --- Константы по умолчанию ---
         const DEFAULT_SITE_CONFIG = { width: 24.5, height: 24.5 };
         const DEFAULT_OBJECTS = [
             { id: 'house', label: 'Дом', w: 12, h: 10, height: 6, x: 3, y: 3, color: 'bg-red-100 border-red-500' },
             { id: 'cont1', label: 'Хоз. блок', w: 12.2, h: 2.44, height: 2.9, x: 12, y: 21, color: 'bg-green-100 border-green-500' },
+            { id: 'cont2', label: 'Гостевой дом', w: 12.2, h: 2.44, height: 2.9, x: 0.5, y: 21, color: 'bg-blue-100 border-blue-500' },
             { id: 'parking', label: 'Парковка', w: 6, h: 5, height: 0.1, x: 18, y: 0.5, color: 'bg-slate-100 border-slate-400 border-dashed' }
         ];
 
-        // --- Компонент 3D Сцены (без изменений) ---
+        // --- Компонент 3D Просмотра ---
         const Scene3D = ({ objects, siteConfig }) => {
             const mountRef = useRef(null);
             const sceneRef = useRef(null);
             
             useEffect(() => {
+                // 1. Инициализация сцены
                 const width = mountRef.current.clientWidth;
                 const height = mountRef.current.clientHeight;
+
                 const scene = new THREE.Scene();
-                scene.background = new THREE.Color(0xf0f9ff);
+                scene.background = new THREE.Color(0xf0f9ff); // Небесно-голубой фон
                 scene.fog = new THREE.Fog(0xf0f9ff, 20, 100);
                 sceneRef.current = scene;
 
                 const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+                // Ставим камеру в угол
                 camera.position.set(siteConfig.width * 1.5, siteConfig.width, siteConfig.height * 1.5); 
 
                 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -121,12 +80,16 @@
                 renderer.shadowMap.enabled = true;
                 mountRef.current.appendChild(renderer.domElement);
 
+                // Контроллеры (Вращение)
                 const controls = new THREE.OrbitControls(camera, renderer.domElement);
                 controls.enableDamping = true;
-                controls.maxPolarAngle = Math.PI / 2 - 0.05;
+                controls.dampingFactor = 0.05;
+                controls.maxPolarAngle = Math.PI / 2 - 0.05; // Не даем уйти под землю
 
+                // Свет
                 const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
                 scene.add(ambientLight);
+
                 const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
                 dirLight.position.set(20, 50, 20);
                 dirLight.castShadow = true;
@@ -134,6 +97,7 @@
                 dirLight.shadow.mapSize.height = 2048;
                 scene.add(dirLight);
 
+                // Земля (Трава)
                 const groundGeo = new THREE.PlaneGeometry(100, 100);
                 const groundMat = new THREE.MeshStandardMaterial({ color: 0xe5e7eb });
                 const ground = new THREE.Mesh(groundGeo, groundMat);
@@ -142,16 +106,22 @@
                 ground.receiveShadow = true;
                 scene.add(ground);
 
+                // Участок (Границы)
                 const plotGeo = new THREE.PlaneGeometry(siteConfig.width, siteConfig.height);
-                const plotMat = new THREE.MeshStandardMaterial({ color: 0xf0fdf4, side: THREE.DoubleSide });
+                const plotMat = new THREE.MeshStandardMaterial({ 
+                    color: 0xf0fdf4, // Светло-зеленый
+                    side: THREE.DoubleSide
+                });
                 const plot = new THREE.Mesh(plotGeo, plotMat);
                 plot.rotation.x = -Math.PI / 2;
                 plot.receiveShadow = true;
                 scene.add(plot);
 
+                // Сетка
                 const gridHelper = new THREE.GridHelper(Math.max(siteConfig.width, siteConfig.height), Math.max(siteConfig.width, siteConfig.height));
                 scene.add(gridHelper);
 
+                // Анимация
                 const animate = () => {
                     requestAnimationFrame(animate);
                     controls.update();
@@ -159,6 +129,7 @@
                 };
                 animate();
 
+                // Обработка ресайза
                 const handleResize = () => {
                     if (!mountRef.current) return;
                     const w = mountRef.current.clientWidth;
@@ -171,128 +142,414 @@
 
                 return () => {
                     window.removeEventListener('resize', handleResize);
-                    if (mountRef.current && renderer.domElement) mountRef.current.removeChild(renderer.domElement);
+                    if (mountRef.current && renderer.domElement) {
+                        mountRef.current.removeChild(renderer.domElement);
+                    }
                     renderer.dispose();
                 };
             }, []);
 
+            // Обновление объектов при изменении props
             useEffect(() => {
                 if (!sceneRef.current) return;
                 const scene = sceneRef.current;
+
+                // Удаляем старые объекты (тег 'building')
                 for (let i = scene.children.length - 1; i >= 0; i--) {
-                    if (scene.children[i].userData.isBuilding) scene.remove(scene.children[i]);
+                    if (scene.children[i].userData.isBuilding) {
+                        scene.remove(scene.children[i]);
+                    }
                 }
+
+                // Добавляем новые
                 objects.forEach(obj => {
+                    // Геометрия
                     const geometry = new THREE.BoxGeometry(obj.w, obj.height || 0.1, obj.h);
-                    const material = new THREE.MeshStandardMaterial({ color: getHexColor(obj.color), roughness: 0.7, metalness: 0.1 });
+                    const material = new THREE.MeshStandardMaterial({ 
+                        color: getHexColor(obj.color),
+                        roughness: 0.7,
+                        metalness: 0.1
+                    });
                     const cube = new THREE.Mesh(geometry, material);
+                    
+                    // Позиция
                     const centerX = obj.x + obj.w / 2 - siteConfig.width / 2;
                     const centerZ = obj.y + obj.h / 2 - siteConfig.height / 2;
-                    cube.position.set(centerX, (obj.height || 0.1) / 2, centerZ);
+                    const centerY = (obj.height || 0.1) / 2;
+
+                    cube.position.set(centerX, centerY, centerZ);
+                    
+                    // Тени
                     cube.castShadow = true;
                     cube.receiveShadow = true;
+                    
+                    // Метаданные
                     cube.userData = { isBuilding: true };
+
+                    // Обводка (Edges)
                     const edges = new THREE.EdgesGeometry(geometry);
                     const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000, opacity: 0.2, transparent: true }));
                     cube.add(line);
+
                     scene.add(cube);
                 });
+                
             }, [objects, siteConfig]);
 
             return <div ref={mountRef} className="w-full h-full cursor-move" />;
         };
 
-        // --- Главное приложение ---
+
         const App = () => {
             const PIXELS_PER_METER = 20;
 
-            const [viewMode, setViewMode] = useState('2d');
-            const [selectedId, setSelectedId] = useState(null);
+            const [viewMode, setViewMode] = useState('2d'); // '2d' or '3d'
+            const [selectedId, setSelectedId] = useState(null); // ID выбранного объекта
+            
+            // --- Состояние с загрузкой из LocalStorage ---
+            const [siteConfig, setSiteConfig] = useState(() => {
+                const saved = localStorage.getItem('site_planner_config');
+                return saved ? JSON.parse(saved) : DEFAULT_SITE_CONFIG;
+            });
+
+            const [objects, setObjects] = useState(() => {
+                const saved = localStorage.getItem('site_planner_objects');
+                return saved ? JSON.parse(saved) : DEFAULT_OBJECTS;
+            });
+
+            // --- Сохранение изменений при обновлении состояния ---
+            useEffect(() => {
+                localStorage.setItem('site_planner_config', JSON.stringify(siteConfig));
+            }, [siteConfig]);
+
+            useEffect(() => {
+                localStorage.setItem('site_planner_objects', JSON.stringify(objects));
+            }, [objects]);
+
+            // --- Сброс настроек ---
+            const handleReset = () => {
+                if(confirm('Вы уверены? Это сбросит все ваши изменения к стандартному плану.')) {
+                    setSiteConfig(DEFAULT_SITE_CONFIG);
+                    setObjects(DEFAULT_OBJECTS);
+                    localStorage.removeItem('site_planner_config');
+                    localStorage.removeItem('site_planner_objects');
+                }
+            };
+
+            const [draggingId, setDraggingId] = useState(null);
+            const [offset, setOffset] = useState({ x: 0, y: 0 });
             const containerRef = useRef(null);
 
-            const [siteConfig, setSiteConfig] = useState(DEFAULT_SITE_CONFIG);
-            const [objects, setObjects] = useState(DEFAULT_OBJECTS);
-            
-            const [fb, setFb] = useState(null);
-            const [user, setUser] = useState(null);
-            const [projects, setProjects] = useState([]);
-            const [currentProjectId, setCurrentProjectId] = useState(null);
-            const [projectName, setProjectName] = useState("Новый проект");
-            const [isLoading, setIsLoading] = useState(true);
-            const [saveStatus, setSaveStatus] = useState("");
-            
-            // Новое состояние для глобальных ошибок
-            const [globalError, setGlobalError] = useState(null);
+            // --- Логика перетаскивания (2D) ---
+            const handleStart = (clientX, clientY, id, e) => {
+                if (viewMode === '3d') return;
+                
+                // Останавливаем всплытие, чтобы не сработал клик по фону (деселект)
+                if(e && e.stopPropagation) e.stopPropagation();
 
-            // 1. Инициализация Firebase
-            useEffect(() => {
-                const init = async () => {
-                    if (window.initFirebase) {
-                        try {
-                            const fbInstance = await window.initFirebase();
-                            if (fbInstance) {
-                                setFb(fbInstance);
-                                const { auth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } = fbInstance;
-                                
-                                const authToken = window.__initial_auth_token;
-                                if (authToken) {
-                                    await signInWithCustomToken(auth, authToken);
-                                } else {
-                                    await signInAnonymously(auth);
-                                }
-                                onAuthStateChanged(auth, (u) => setUser(u));
-                            }
-                        } catch (err) {
-                            console.error("Firebase init error:", err);
-                            // Не блокируем интерфейс, просто работаем локально (но без сохранений)
-                        }
-                    }
-                    setIsLoading(false);
-                };
-                init();
-            }, []);
+                setDraggingId(id);
+                setSelectedId(id); // Выбираем объект при начале перетаскивания
 
-            // 2. Загрузка списка проектов с обработкой ошибок блокировщика
-            useEffect(() => {
-                if (!user || !fb) return;
-                const { db, appId, collection, onSnapshot, query } = fb;
+                const obj = objects.find(o => o.id === id);
+                const rect = containerRef.current.getBoundingClientRect();
+                const mouseX = (clientX - rect.left) / PIXELS_PER_METER;
+                const mouseY = (clientY - rect.top) / PIXELS_PER_METER;
+                setOffset({ x: mouseX - obj.x, y: mouseY - obj.y });
+            };
 
-                const q = query(collection(db, 'artifacts', appId, 'users', user.uid, 'designs')); 
+            // Клик по фону для снятия выделения
+            const handleBackgroundStart = (e) => {
+                 if (e.target === containerRef.current) {
+                    setSelectedId(null);
+                 }
+            };
 
-                const unsubscribe = onSnapshot(q, (snapshot) => {
-                    setGlobalError(null); // Очищаем ошибку при успехе
-                    const loadedProjects = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
-                    
-                    loadedProjects.sort((a, b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
-                    setProjects(loadedProjects);
+            const handleMove = (clientX, clientY) => {
+                if (!draggingId || viewMode === '3d') return;
+                const rect = containerRef.current.getBoundingClientRect();
+                let newX = (clientX - rect.left) / PIXELS_PER_METER - offset.x;
+                let newY = (clientY - rect.top) / PIXELS_PER_METER - offset.y;
 
-                    if (loadedProjects.length > 0 && !currentProjectId) {
-                        loadProject(loadedProjects[0]);
-                    }
-                }, (error) => {
-                    console.error("Firestore Error:", error);
-                    // Обработка ошибки блокировщика
-                    if (error.code === 'failed-precondition' || error.message.includes('BLOCKED') || error.message.includes('offline')) {
-                        setGlobalError("Соединение с базой данных заблокировано. Пожалуйста, отключите AdBlock, uBlock или VPN для этого сайта, чтобы сохранять проекты.");
-                    } else {
-                        setGlobalError(`Ошибка синхронизации: ${error.message}`);
-                    }
-                });
+                const obj = objects.find(o => o.id === draggingId);
+                
+                newX = Math.max(0, Math.min(newX, siteConfig.width - obj.w));
+                newY = Math.max(0, Math.min(newY, siteConfig.height - obj.h));
 
-                return () => unsubscribe();
-            }, [user, fb]);
+                setObjects(prev => prev.map(o => o.id === draggingId ? { ...o, x: newX, y: newY } : o));
+            };
 
-            // --- Функции управления проектами ---
+            const handleEnd = () => setDraggingId(null);
 
-            const createNewProject = async () => {
-                if (!user || !fb) return alert("База данных недоступна. Отключите блокировщики рекламы.");
-                const { db, appId, collection, addDoc, serverTimestamp } = fb;
+            const onMouseDown = (e, id) => handleStart(e.clientX, e.clientY, id, e);
+            const onMouseMove = (e) => handleMove(e.clientX, e.clientY);
+            const onTouchStart = (e, id) => handleStart(e.touches[0].clientX, e.touches[0].clientY, id, e);
+            const onTouchMove = (e) => handleMove(e.touches[0].clientX, e.touches[0].clientY);
 
-                const newProject = {
-                    name: `Проект ${projects.length + 1}`,
-                    siteConfig: DEFAULT_SITE_CONFIG,
-                    objects: DEFAULT_OBJECTS,
-                    updatedAt: serverTimestamp
+            // --- Управление объектами ---
+            const updateObject = (id, field, value) => {
+                setObjects(prev => prev.map(o => o.id === id ? { ...o, [field]: value } : o));
+            };
+
+            const rotateObject = (id) => {
+                setObjects(prev => prev.map(o => {
+                    if (o.id !== id) return o;
+                    return { ...o, w: o.h, h: o.w };
+                }));
+            };
+
+            const deleteObject = (id) => {
+                if (confirm('Удалить этот объект?')) {
+                    setObjects(prev => prev.filter(o => o.id !== id));
+                    if (selectedId === id) setSelectedId(null);
+                }
+            };
+
+            const addObject = () => {
+                const newId = 'obj_' + Date.now();
+                setObjects([...objects, {
+                    id: newId,
+                    label: 'Новый объект',
+                    w: 3, h: 3,
+                    height: 3,
+                    x: siteConfig.width / 2 - 1.5,
+                    y: siteConfig.height / 2 - 1.5,
+                    color: 'bg-yellow-100 border-yellow-500'
+                }]);
+                setSelectedId(newId);
+            };
+
+            return (
+                <div className="flex flex-col h-screen overflow-hidden" onMouseUp={handleEnd} onMouseLeave={handleEnd} onTouchEnd={handleEnd}>
+                    {/* Хедер */}
+                    <header className="bg-white border-b p-4 shadow-sm z-20 flex justify-between items-center">
+                        <div>
+                            <h1 className="text-xl font-bold text-gray-800 hidden md:block">3D Планировщик</h1>
+                        </div>
+                        
+                        <div className="flex gap-4 items-center">
+                             {/* Кнопка сброса */}
+                             <button 
+                                onClick={handleReset}
+                                className="text-gray-400 hover:text-red-500 text-xs px-2 mr-2 border-r border-gray-300 pr-4"
+                                title="Сбросить все настройки к начальным"
+                            >
+                                Сброс
+                            </button>
+
+                            {/* Переключатель режима */}
+                            <div className="bg-gray-200 p-1 rounded-lg flex">
+                                <button 
+                                    onClick={() => setViewMode('2d')}
+                                    className={`px-4 py-1 rounded-md text-sm font-medium transition ${viewMode === '2d' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                                >
+                                    2D План
+                                </button>
+                                <button 
+                                    onClick={() => setViewMode('3d')}
+                                    className={`px-4 py-1 rounded-md text-sm font-medium transition ${viewMode === '3d' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                                >
+                                    3D Вид
+                                </button>
+                            </div>
+
+                            <button onClick={addObject} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow text-sm">
+                                + Объект
+                            </button>
+                        </div>
+                    </header>
+
+                    <div className="flex flex-1 overflow-hidden">
+                        {/* Левая панель: Настройки */}
+                        <div className="w-72 sm:w-80 bg-white border-r overflow-y-auto p-4 z-10 shadow-lg flex-shrink-0">
+                            
+                            {/* Настройки участка */}
+                            <div className="mb-6 bg-gray-50 p-3 rounded border">
+                                <h3 className="font-bold text-gray-700 mb-2 text-sm">Размеры участка (м)</h3>
+                                <div className="flex gap-2">
+                                    <div>
+                                        <label className="text-[10px] block text-gray-500">Ширина</label>
+                                        <input 
+                                            type="number" value={siteConfig.width}
+                                            onChange={(e) => setSiteConfig({...siteConfig, width: Number(e.target.value)})}
+                                            className="w-full border rounded p-1 text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] block text-gray-500">Глубина</label>
+                                        <input 
+                                            type="number" value={siteConfig.height}
+                                            onChange={(e) => setSiteConfig({...siteConfig, height: Number(e.target.value)})}
+                                            className="w-full border rounded p-1 text-sm"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Список объектов */}
+                            <h3 className="font-bold text-gray-700 mb-2 text-sm">Объекты</h3>
+                            <div className="space-y-3">
+                                {objects.map(obj => (
+                                    <div 
+                                        key={obj.id} 
+                                        onClick={() => setSelectedId(obj.id)}
+                                        className={`p-3 rounded border cursor-pointer transition 
+                                            ${selectedId === obj.id ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:shadow-sm bg-white'} 
+                                            ${obj.color.split(' ')[0].replace('bg-', 'bg-opacity-20 ')} relative`}
+                                    >
+                                        <div className="flex justify-between items-start mb-2">
+                                            <input 
+                                                type="text" value={obj.label}
+                                                onChange={(e) => updateObject(obj.id, 'label', e.target.value)}
+                                                className="font-bold bg-transparent border-b border-gray-400 w-full mr-2 focus:outline-none text-sm"
+                                            />
+                                            <button onClick={(e) => { e.stopPropagation(); deleteObject(obj.id); }} className="text-red-400 hover:text-red-600 font-bold px-1">×</button>
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-3 gap-2 mb-2">
+                                            <div>
+                                                <label className="text-[9px] text-gray-500 block">Шир (м)</label>
+                                                <input type="number" step="0.5" value={obj.w}
+                                                    onChange={(e) => updateObject(obj.id, 'w', Number(e.target.value))}
+                                                    className="w-full border rounded p-1 text-xs"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-[9px] text-gray-500 block">Длн (м)</label>
+                                                <input type="number" step="0.5" value={obj.h}
+                                                    onChange={(e) => updateObject(obj.id, 'h', Number(e.target.value))}
+                                                    className="w-full border rounded p-1 text-xs"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-[9px] text-gray-500 block font-bold text-blue-600">Выс (м)</label>
+                                                <input type="number" step="0.5" value={obj.height}
+                                                    onChange={(e) => updateObject(obj.id, 'height', Number(e.target.value))}
+                                                    className="w-full border rounded p-1 text-xs font-bold text-blue-700 bg-blue-50"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex justify-between items-center text-[10px]">
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); rotateObject(obj.id); }}
+                                                className="bg-white border hover:bg-gray-100 px-2 py-1 rounded flex items-center gap-1 shadow-sm"
+                                            >
+                                                ↻ Повернуть
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Правая панель: Канвас (2D или 3D) */}
+                        <div className="flex-1 overflow-hidden bg-gray-100 relative">
+                            
+                            {viewMode === '2d' ? (
+                                <div className="w-full h-full overflow-auto p-8 flex justify-center items-start" onMouseDown={handleBackgroundStart}>
+                                    <div 
+                                        ref={containerRef}
+                                        className="bg-white shadow-xl relative grid-pattern flex-shrink-0 transition-all duration-300"
+                                        style={{ 
+                                            width: siteConfig.width * PIXELS_PER_METER, 
+                                            height: siteConfig.height * PIXELS_PER_METER,
+                                            backgroundSize: `${PIXELS_PER_METER}px ${PIXELS_PER_METER}px`
+                                        }}
+                                        onMouseMove={onMouseMove}
+                                        onTouchMove={onTouchMove}
+                                    >
+                                        <div className="absolute -top-6 w-full text-center text-gray-500 text-sm">{siteConfig.width} м</div>
+                                        <div className="absolute -left-6 top-0 h-full flex items-center">
+                                            <span className="text-gray-500 text-sm -rotate-90 whitespace-nowrap">{siteConfig.height} м</span>
+                                        </div>
+
+                                        {objects.map(obj => (
+                                            <div
+                                                key={obj.id}
+                                                onMouseDown={(e) => onMouseDown(e, obj.id)}
+                                                onTouchStart={(e) => onTouchStart(e, obj.id)}
+                                                className={`absolute border-2 flex flex-col items-center justify-center cursor-move select-none no-select shadow-sm hover:shadow-md transition-shadow 
+                                                    ${obj.color} 
+                                                    ${(draggingId === obj.id || selectedId === obj.id) ? 'z-50 ring-2 ring-blue-500 opacity-95' : 'z-10'}`}
+                                                style={{
+                                                    width: obj.w * PIXELS_PER_METER,
+                                                    height: obj.h * PIXELS_PER_METER,
+                                                    left: obj.x * PIXELS_PER_METER,
+                                                    top: obj.y * PIXELS_PER_METER,
+                                                }}
+                                                title={obj.label}
+                                            >
+                                                {/* Отображение размеров до границ при выделении */}
+                                                {selectedId === obj.id && (
+                                                    <>
+                                                        {/* Линия вверх (Top) */}
+                                                        <div className="absolute border-l border-red-500 border-dashed" style={{ 
+                                                            height: obj.y * PIXELS_PER_METER, 
+                                                            top: -obj.y * PIXELS_PER_METER, 
+                                                            left: '50%',
+                                                            width: '1px'
+                                                        }}></div>
+                                                        <div className="absolute bg-white px-1 text-[10px] font-bold text-red-600 rounded border border-red-200 shadow-sm whitespace-nowrap z-50" style={{
+                                                            top: -obj.y * PIXELS_PER_METER / 2 - 10,
+                                                            left: '50%', transform: 'translateX(-50%)'
+                                                        }}>{obj.y.toFixed(1)} м</div>
+
+                                                        {/* Линия вниз (Bottom) */}
+                                                        <div className="absolute border-l border-red-500 border-dashed" style={{ 
+                                                            height: (siteConfig.height - obj.y - obj.h) * PIXELS_PER_METER, 
+                                                            bottom: -(siteConfig.height - obj.y - obj.h) * PIXELS_PER_METER, 
+                                                            left: '50%',
+                                                            width: '1px'
+                                                        }}></div>
+                                                        <div className="absolute bg-white px-1 text-[10px] font-bold text-red-600 rounded border border-red-200 shadow-sm whitespace-nowrap z-50" style={{
+                                                            bottom: -(siteConfig.height - obj.y - obj.h) * PIXELS_PER_METER / 2 - 10,
+                                                            left: '50%', transform: 'translateX(-50%)'
+                                                        }}>{(siteConfig.height - obj.y - obj.h).toFixed(1)} м</div>
+
+                                                        {/* Линия влево (Left) */}
+                                                        <div className="absolute border-t border-red-500 border-dashed" style={{ 
+                                                            width: obj.x * PIXELS_PER_METER, 
+                                                            left: -obj.x * PIXELS_PER_METER, 
+                                                            top: '50%',
+                                                            height: '1px'
+                                                        }}></div>
+                                                        <div className="absolute bg-white px-1 text-[10px] font-bold text-red-600 rounded border border-red-200 shadow-sm whitespace-nowrap z-50" style={{
+                                                            left: -obj.x * PIXELS_PER_METER / 2, transform: 'translate(-50%, -50%)',
+                                                            top: '50%'
+                                                        }}>{obj.x.toFixed(1)} м</div>
+
+                                                        {/* Линия вправо (Right) */}
+                                                        <div className="absolute border-t border-red-500 border-dashed" style={{ 
+                                                            width: (siteConfig.width - obj.x - obj.w) * PIXELS_PER_METER, 
+                                                            right: -(siteConfig.width - obj.x - obj.w) * PIXELS_PER_METER, 
+                                                            top: '50%',
+                                                            height: '1px'
+                                                        }}></div>
+                                                        <div className="absolute bg-white px-1 text-[10px] font-bold text-red-600 rounded border border-red-200 shadow-sm whitespace-nowrap z-50" style={{
+                                                            right: -(siteConfig.width - obj.x - obj.w) * PIXELS_PER_METER / 2, transform: 'translate(50%, -50%)',
+                                                            top: '50%'
+                                                        }}>{(siteConfig.width - obj.x - obj.w).toFixed(1)} м</div>
+                                                    </>
+                                                )}
+
+                                                <div className="text-[10px] font-bold text-center leading-tight px-1 truncate w-full pointer-events-none">{obj.label}</div>
+                                                <div className="text-[9px] opacity-60 text-center hidden sm:block pointer-events-none">{obj.w}x{obj.h}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : (
+                                <Scene3D objects={objects} siteConfig={siteConfig} />
+                            )}
+                            
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
