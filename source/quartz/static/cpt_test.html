@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>СДВГ CPT Тест (Аналог MOXO)</title>
+    <!-- Tailwind CSS для стилей -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Phosphor Icons для красивых иконок -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; }
+        .hidden { display: none !important; }
+        
+        /* Анимации для визуальных помех */
+        @keyframes fly-lr { 0% { transform: translate(-20vw, 0) rotate(0deg); } 100% { transform: translate(120vw, 0) rotate(360deg); } }
+        @keyframes fly-rl { 0% { transform: translate(120vw, 0) rotate(0deg); } 100% { transform: translate(-20vw, 0) rotate(-360deg); } }
+        @keyframes fly-tb { 0% { transform: translate(0, -20vh) rotate(0deg); } 100% { transform: translate(0, 120vh) rotate(180deg); } }
+        @keyframes fly-bt { 0% { transform: translate(0, 120vh) rotate(0deg); } 100% { transform: translate(0, -20vh) rotate(-180deg); } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col items-center justify-center overflow-hidden">
+
+    <!-- ЭКРАН 1: ИНТРО -->
+    <div id="intro-view" class="max-w-2xl bg-white p-8 rounded-2xl shadow-xl border border-slate-100 m-6 w-full z-10">
+        <h1 class="text-3xl font-bold mb-6 flex items-center gap-3 text-indigo-700">
+            <i class="ph-fill ph-brain text-4xl"></i>
+            СДВГ CPT Тест (Аналог)
+        </h1>
+        
+        <div class="space-y-4 text-lg mb-8 text-slate-600">
+            <p>Этот тест оценивает четыре параметра внимания и самоконтроля. Длительность: ~5 минут.</p>
+            <ul class="grid grid-cols-2 gap-4 mt-4 text-base">
+                <li class="flex items-center gap-2 bg-indigo-50 p-3 rounded-lg"><i class="ph-bold ph-eye text-2xl text-indigo-500"></i> Внимание</li>
+                <li class="flex items-center gap-2 bg-emerald-50 p-3 rounded-lg"><i class="ph-bold ph-clock text-2xl text-emerald-500"></i> Скорость</li>
+                <li class="flex items-center gap-2 bg-rose-50 p-3 rounded-lg"><i class="ph-bold ph-activity text-2xl text-rose-500"></i> Импульсивность</li>
+                <li class="flex items-center gap-2 bg-amber-50 p-3 rounded-lg"><i class="ph-bold ph-lightning text-2xl text-amber-500"></i> Гиперактивность</li>
+            </ul>
+            
+            <div class="mt-8 p-6 bg-slate-100 rounded-xl border-l-4 border-indigo-500">
+                <h3 class="font-bold text-slate-800 mb-2 text-xl">Инструкция:</h3>
+                <p>Нажимайте клавишу <strong>ПРОБЕЛ</strong> <i>только</i> тогда, когда видите <strong class="text-blue-600">СИНИЙ КРУГ 🔵</strong>.</p>
+                <p class="mt-2 text-red-600">Игнорируйте любые другие фигуры и отвлекающие факторы (звуки, летающие объекты).</p>
+                <p class="mt-2 text-sm text-slate-500">Нажимайте пробел только один раз и как можно быстрее.</p>
+            </div>
+        </div>
+
+        <button onclick="startGame()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-8 rounded-xl text-xl transition-all shadow-lg hover:shadow-indigo-200 flex justify-center items-center gap-2">
+            <i class="ph-fill ph-play-circle text-3xl"></i> Начать тестирование
+        </button>
+    </div>
+
+    <!-- ЭКРАН 2: ЗАСТАВКА УРОВНЯ -->
+    <div id="level-intro-view" class="hidden flex-col items-center justify-center w-full h-full min-h-screen bg-slate-900 text-white z-20 absolute top-0 left-0">
+        <h2 id="level-title" class="text-5xl font-bold mb-4 animate-pulse text-indigo-400">Уровень 1 из 3</h2>
+        <p id="level-desc" class="text-2xl text-slate-300">Базовый тест. Никаких помех.</p>
+        <p class="mt-12 text-slate-400 text-xl">Приготовьтесь...</p>
+    </div>
+
+    <!-- ЭКРАН 3: ТЕСТИРОВАНИЕ -->
+    <div id="testing-view" class="hidden flex-col items-center justify-center w-full h-full min-h-screen bg-slate-100 z-10 relative">
+        <!-- Индикатор -->
+        <div class="absolute top-6 left-6 flex items-center gap-4 z-50">
+            <div id="current-level-badge" class="bg-white px-4 py-2 rounded-lg shadow-sm font-semibold text-slate-600 text-lg">Уровень 1</div>
+            <i id="visual-icon" class="ph-bold ph-eye text-3xl text-slate-400 animate-pulse hidden"></i>
+            <i id="audio-icon" class="ph-bold ph-speaker-high text-3xl text-slate-400 animate-pulse hidden"></i>
+        </div>
+
+        <!-- Центральный стимул -->
+        <div class="w-72 h-72 bg-white rounded-3xl shadow-2xl flex items-center justify-center text-[10rem] relative z-40 border-4 border-slate-200" style="font-size: 10rem;">
+            <span id="stimulus-container" class="transition-transform transform scale-0 duration-100"></span>
+        </div>
+        
+        <p class="absolute bottom-10 text-slate-400 font-medium tracking-widest uppercase z-50">
+            Нажмите ПРОБЕЛ при появлении синего круга
+        </p>
+
+        <!-- Контейнер для летающих помех -->
+        <div id="distractors-container" class="absolute inset-0 overflow-hidden pointer-events-none z-30"></div>
+    </div>
+
+    <!-- ЭКРАН 4: РЕЗУЛЬТАТЫ -->
+    <div id="results-view" class="hidden flex-col items-center justify-center min-h-screen bg-slate-50 p-6 w-full z-10 absolute top-0 left-0 overflow-y-auto">
+        <div class="max-w-4xl w-full bg-white p-8 rounded-2xl shadow-xl border border-slate-100 my-8">
+            <h2 class="text-3xl font-bold mb-8 text-center text-slate-800">Результаты Тестирования</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10">
+                <div class="bg-indigo-50 p-6 rounded-xl border border-indigo-100 text-center">
+                    <i class="ph-bold ph-eye text-4xl text-indigo-500 mx-auto mb-2"></i>
+                    <div class="text-sm text-indigo-600 font-bold uppercase mb-1">Внимание</div>
+                    <div id="res-attention" class="text-4xl font-black text-indigo-900">0%</div>
+                    <div class="text-xs text-indigo-400 mt-1">Точность реакций на цель</div>
+                </div>
+                <div class="bg-emerald-50 p-6 rounded-xl border border-emerald-100 text-center">
+                    <i class="ph-bold ph-clock text-4xl text-emerald-500 mx-auto mb-2"></i>
+                    <div class="text-sm text-emerald-600 font-bold uppercase mb-1">Своевременность</div>
+                    <div class="text-4xl font-black text-emerald-900"><span id="res-rt">0</span><span class="text-lg">мс</span></div>
+                    <div class="text-xs text-emerald-400 mt-1">Среднее время отклика</div>
+                </div>
+                <div class="bg-rose-50 p-6 rounded-xl border border-rose-100 text-center">
+                    <i class="ph-bold ph-activity text-4xl text-rose-500 mx-auto mb-2"></i>
+                    <div class="text-sm text-rose-600 font-bold uppercase mb-1">Импульсивность</div>
+                    <div id="res-impulsivity" class="text-4xl font-black text-rose-900">0</div>
+                    <div class="text-xs text-rose-400 mt-1">Ошибочные нажатия</div>
+                </div>
+                <div class="bg-amber-50 p-6 rounded-xl border border-amber-100 text-center">
+                    <i class="ph-bold ph-lightning text-4xl text-amber-500 mx-auto mb-2"></i>
+                    <div class="text-sm text-amber-600 font-bold uppercase mb-1">Гиперактивность</div>
+                    <div id="res-hyperactivity" class="text-4xl font-black text-amber-900">0</div>
+                    <div class="text-xs text-amber-400 mt-1">Лишние нажатия / суета</div>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="text-xl font-bold mb-4 text-slate-700">Разбор по уровням помех</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600">
+                                <th class="p-3 rounded-tl-lg">Уровень</th>
+                                <th class="p-3">Пропуски (Невнимат.)</th>
+                                <th class="p-3">Ложные (Импульсив.)</th>
+                                <th class="p-3">Лишние (Гиперакт.)</th>
+                                <th class="p-3 rounded-tr-lg">Ср. Скорость</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-table-body" class="divide-y divide-slate-100">
+                            <!-- Rows generated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <button onclick="resetApp()" class="mx-auto flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-6 py-3 rounded-xl font-medium transition-colors">
+                <i class="ph-bold ph-arrow-counter-clockwise text-xl"></i> Пройти заново
+            </button>
+        </div>
+    </div>
+
+    <!-- ЛОГИКА ПРИЛОЖЕНИЯ -->
+    <script>
+        // --- Настройки теста ---
+        const TARGET_STIMULUS = '🔵';
+        const NONTARGET_STIMULUS = ['🟥', '🔺', '🔶', '⭐', '🟩', '🟪', '❌'];
+        const TRIALS_PER_LEVEL = 50; // УВЕЛИЧЕНО до 50 попыток
+        const STIMULUS_DURATION = 500; // мс
+        const VOID_DURATION = 1500; // мс
+
+        // --- Состояние ---
+        let currentView = 'intro';
+        let currentLevel = 1;
+        let isRunning = false;
+        
+        let trialData = { isTarget: false, startTime: 0, hasPressed: false, phase: 'void' };
+        let stats = getInitialStats();
+
+        // --- Аудио Контекст ---
+        let audioCtx = null;
+        let noiseBuffer = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Создаем буфер белого шума
+                const bufferSize = audioCtx.sampleRate * 2;
+                noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const output = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        // Расширенные аудио дистракторы
+        function playDistractorSound() {
+            if (!audioCtx) return;
+            
+            const type = Math.floor(Math.random() * 3); // 0, 1 или 2
+            
+            if (type === 0 && noiseBuffer) {
+                // Тип 1: Белый шум (Шипение)
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = noiseBuffer;
+                const gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                noise.connect(gain);
+                gain.connect(audioCtx.destination);
+                noise.start();
+                noise.stop(audioCtx.currentTime + 0.5);
+            } 
+            else if (type === 1) {
+                // Тип 2: Низкочастотное жужжание (Квадратная волна)
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(60 + Math.random() * 100, audioCtx.currentTime); // Низкий звук
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
+            } 
+            else {
+                // Тип 3: Высокий писк или сигнал
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800 + Math.random() * 1000, audioCtx.currentTime); // Высокий звук
+                // Эффект падения высоты звука
+                osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        // --- Улучшенные визуальные дистракторы ---
+        function generateVisualDistractor() {
+            const container = document.getElementById('distractors-container');
+            if (!container) return;
+
+            // Больше эмодзи
+            const emojis = ['🦋', '🚗', '🎈', '👻', '⚡', '🎵', '⚽', '🚀', '💥', '👀', '🕷️', '🛸', '🍕', '💣'];
+            const el = document.createElement('div');
+            
+            // Настройка элемента
+            el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+            el.className = 'absolute opacity-70 pointer-events-none';
+            
+            // Случайный размер
+            const size = 3 + Math.random() * 5; // от 3rem до 8rem
+            el.style.fontSize = `${size}rem`;
+
+            // Выбор направления анимации
+            const animations = ['fly-lr', 'fly-rl', 'fly-tb', 'fly-bt'];
+            const anim = animations[Math.floor(Math.random() * animations.length)];
+            
+            // Длительность от 1.5 до 4 секунд
+            const duration = 1.5 + Math.random() * 2.5; 
+            el.style.animation = `${anim} ${duration}s linear forwards`;
+
+            // Случайная начальная позиция в зависимости от оси
+            if (anim === 'fly-lr' || anim === 'fly-rl') {
+                el.style.top = `${10 + Math.random() * 80}%`;
+                el.style.left = '0';
+            } else {
+                el.style.left = `${10 + Math.random() * 80}%`;
+                el.style.top = '0';
+            }
+
+            container.appendChild(el);
+
+            // Удаляем элемент после завершения анимации
+            setTimeout(() => {
+                if (el.parentNode) el.parentNode.removeChild(el);
+            }, duration * 1000 + 100);
+        }
+
+        // --- Утилиты ---
+        function getInitialStats() {
+            return {
+                1: { targets: 0, hits: 0, misses: 0, falseAlarms: 0, hyper: 0, rt: [] },
+                2: { targets: 0, hits: 0, misses: 0, falseAlarms: 0, hyper: 0, rt: [] },
+                3: { targets: 0, hits: 0, misses: 0, falseAlarms: 0, hyper: 0, rt: [] }
+            };
+        }
+
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+        function switchView(viewId) {
+            ['intro-view', 'level-intro-view', 'testing-view', 'results-view'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+                if(id === 'level-intro-view') document.getElementById(id).classList.remove('flex');
+                if(id === 'testing-view') document.getElementById(id).classList.remove('flex');
+                if(id === 'results-view') document.getElementById(id).classList.remove('flex');
+            });
+            
+            const el = document.getElementById(viewId);
+            el.classList.remove('hidden');
+            
+            // Восстанавливаем flex для центрирования
+            if (viewId !== 'intro-view') {
+                el.classList.add('flex');
+            }
+            currentView = viewId;
+        }
+
+        // --- Основной цикл тестирования ---
+        async function runTestLoop() {
+            isRunning = true;
+            
+            for (let level = 1; level <= 3; level++) {
+                if (!isRunning) break;
+                currentLevel = level;
+                
+                // Подготовка экрана заставки
+                const levelTitles = {
+                    1: "Уровень 1 из 3",
+                    2: "Уровень 2 из 3",
+                    3: "Уровень 3 из 3"
+                };
+                const levelDescs = {
+                    1: "Базовый тест. Никаких помех.",
+                    2: "Визуальные помехи. Не отвлекайтесь!",
+                    3: "Аудиовизуальные помехи. Максимальная концентрация!"
+                };
+                document.getElementById('level-title').innerText = levelTitles[level];
+                document.getElementById('level-desc').innerText = levelDescs[level];
+                
+                // Настройка иконок в углу
+                document.getElementById('current-level-badge').innerText = `Уровень ${level}`;
+                document.getElementById('visual-icon').style.display = level >= 2 ? 'block' : 'none';
+                document.getElementById('audio-icon').style.display = level === 3 ? 'block' : 'none';
+
+                switchView('level-intro-view');
+                await sleep(4000); // 4 секунды на подготовку
+                if (!isRunning) break;
+                
+                switchView('testing-view');
+                document.getElementById('distractors-container').innerHTML = ''; // Очистка мусора
+                await sleep(1000); // Пауза перед первым стимулом
+
+                // Цикл попыток внутри уровня
+                for (let trial = 0; trial < TRIALS_PER_LEVEL; trial++) {
+                    if (!isRunning) break;
+
+                    const isTarget = Math.random() < 0.35; // 35% шанс синего круга
+                    if (isTarget) stats[level].targets++;
+
+                    trialData = {
+                        isTarget,
+                        startTime: performance.now(),
+                        hasPressed: false,
+                        phase: 'stimulus'
+                    };
+
+                    // Показываем стимул
+                    const stimEl = document.getElementById('stimulus-container');
+                    stimEl.innerText = isTarget ? TARGET_STIMULUS : NONTARGET_STIMULUS[Math.floor(Math.random() * NONTARGET_STIMULUS.length)];
+                    stimEl.classList.remove('scale-0');
+                    stimEl.classList.add('scale-100');
+
+                    // Запуск помех (вероятность появления повышена)
+                    if (level >= 2 && Math.random() < 0.7) generateVisualDistractor();
+                    // Иногда запускаем 2 помехи сразу
+                    if (level >= 2 && Math.random() < 0.3) generateVisualDistractor(); 
+                    
+                    if (level === 3 && Math.random() < 0.6) playDistractorSound();
+
+                    await sleep(STIMULUS_DURATION);
+                    if (!isRunning) break;
+
+                    // Убираем стимул
+                    stimEl.classList.remove('scale-100');
+                    stimEl.classList.add('scale-0');
+                    trialData.phase = 'void';
+
+                    await sleep(VOID_DURATION);
+                    
+                    // Проверка на пропуск
+                    if (isTarget && !trialData.hasPressed) {
+                        stats[level].misses++;
+                    }
+                }
+            }
+
+            if (isRunning) {
+                showResults();
+            }
+        }
+
+        // --- Обработка нажатий ---
+        document.addEventListener('keydown', (e) => {
+            if (e.code !== 'Space' || currentView !== 'testing-view' || e.repeat) return;
+            
+            const currentLevelStats = stats[currentLevel];
+
+            if (trialData.phase === 'stimulus') {
+                if (trialData.isTarget) {
+                    if (!trialData.hasPressed) {
+                        // Точное попадание
+                        trialData.hasPressed = true;
+                        const rt = performance.now() - trialData.startTime;
+                        currentLevelStats.hits++;
+                        currentLevelStats.rt.push(rt);
+                    } else {
+                        // Гиперактивность: множественное нажатие на цель
+                        currentLevelStats.hyper++;
+                    }
+                } else {
+                    // Импульсивность: нажатие на не-цель
+                    if (!trialData.hasPressed) {
+                        trialData.hasPressed = true;
+                        currentLevelStats.falseAlarms++;
+                    } else {
+                        currentLevelStats.hyper++;
+                    }
+                }
+            } else if (trialData.phase === 'void') {
+                // Гиперактивность: нажатие в пустое время
+                currentLevelStats.hyper++;
+            }
+        });
+
+        // --- Запуск и Результаты ---
+        function startGame() {
+            initAudio();
+            stats = getInitialStats();
+            runTestLoop();
+        }
+
+        function resetApp() {
+            isRunning = false;
+            switchView('intro-view');
+        }
+
+        function showResults() {
+            isRunning = false;
+            
+            const calculateTotal = (key) => stats[1][key] + stats[2][key] + stats[3][key];
+            const allRt = [...stats[1].rt, ...stats[2].rt, ...stats[3].rt];
+            const avgRt = allRt.length ? Math.round(allRt.reduce((a, b) => a + b, 0) / allRt.length) : 0;
+            
+            const totalTargets = calculateTotal('targets');
+            const totalHits = calculateTotal('hits');
+            const attentionScore = totalTargets > 0 ? Math.round((totalHits / totalTargets) * 100) : 0;
+
+            // Обновляем главные плашки
+            document.getElementById('res-attention').innerText = `${attentionScore}%`;
+            document.getElementById('res-rt').innerText = avgRt;
+            document.getElementById('res-impulsivity').innerText = calculateTotal('falseAlarms');
+            document.getElementById('res-hyperactivity').innerText = calculateTotal('hyper');
+
+            // Обновляем таблицу
+            const tbody = document.getElementById('results-table-body');
+            tbody.innerHTML = '';
+            const levelNames = {1: '1. Базовый (Тишина)', 2: '2. Визуальные помехи', 3: '3. Аудио + Визуальные'};
+
+            for(let lvl = 1; lvl <= 3; lvl++) {
+                const s = stats[lvl];
+                const rt = s.rt.length ? Math.round(s.rt.reduce((a, b) => a + b, 0) / s.rt.length) : '-';
+                
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50";
+                tr.innerHTML = `
+                    <td class="p-3 font-medium text-slate-700">${levelNames[lvl]}</td>
+                    <td class="p-3 text-slate-600 font-semibold">${s.misses}</td>
+                    <td class="p-3 text-slate-600 font-semibold">${s.falseAlarms}</td>
+                    <td class="p-3 text-slate-600 font-semibold">${s.hyper}</td>
+                    <td class="p-3 text-slate-600">${rt} мс</td>
+                `;
+                tbody.appendChild(tr);
+            }
+
+            switchView('results-view');
+        }
+    </script>
+</body>
+</html>
