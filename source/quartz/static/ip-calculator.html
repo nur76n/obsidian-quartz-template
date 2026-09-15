@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Продвинутый IP-калькулятор (Offline)</title>
+    
+    <style>
+        :root {
+            --bg-body: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --bg-input: #0f172a;
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-blue-hover: #2563eb;
+            --accent-emerald: #10b981;
+            --accent-rose: #f43f5e;
+            --accent-sky: #38bdf8;
+            --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .font-mono { font-family: var(--font-mono); }
+
+        .container {
+            max-width: 1280px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border-color);
+            background-color: rgba(15, 23, 42, 0.9);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(8px);
+        }
+
+        .header-content {
+            height: 4rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .brand-icon {
+            padding: 0.5rem;
+            background-color: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-title {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: #ffffff;
+        }
+
+        .brand-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .grid-inputs {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .grid-inputs {
+                grid-template-columns: 6fr 3fr 3fr;
+                align-items: end;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #cbd5e1;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input, .select {
+            width: 100%;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .input:focus, .select:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .badge-valid {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-invalid {
+            background-color: rgba(244, 63, 94, 0.15);
+            color: #fb7185;
+            border-color: rgba(244, 63, 94, 0.3);
+        }
+
+        .badge-private {
+            background-color: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .badge-public {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-loopback {
+            background-color: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+            border-color: rgba(168, 85, 247, 0.3);
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .btn-preset, .btn-reset, .btn-icon {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: #cbd5e1;
+            padding: 0.6rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.375rem;
+        }
+
+        .btn-preset:hover, .btn-reset:hover {
+            background-color: #334155;
+            color: #ffffff;
+        }
+
+        .btn-icon {
+            padding: 0.35rem;
+            border-radius: 0.375rem;
+            color: var(--text-muted);
+        }
+
+        .btn-icon:hover {
+            color: var(--accent-blue);
+            background-color: rgba(51, 65, 85, 0.5);
+        }
+
+        .grid-metrics {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .grid-metrics { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (min-width: 1024px) {
+            .grid-metrics { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        .metric-card {
+            background-color: rgba(30, 41, 59, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: border-color 0.2s ease;
+        }
+
+        .metric-card:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
+        .metric-title {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .metric-val {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 0.25rem;
+        }
+
+        .metric-sub {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+        }
+
+        .bit-net { color: var(--accent-sky); font-weight: 600; }
+        .bit-host { color: var(--accent-rose); font-weight: 600; }
+
+        .binary-row {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            align-items: center;
+            gap: 1rem;
+            min-width: 640px;
+        }
+
+        .binary-box {
+            background-color: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-color);
+            padding: 0.6rem 1rem;
+            border-radius: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .grid-details {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 1024px) {
+            .grid-details { grid-template-columns: 7fr 5fr; }
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+            font-size: 0.875rem;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--text-muted);
+        }
+
+        .detail-val-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .subnet-item {
+            background-color: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-color);
+            padding: 0.6rem 0.75rem;
+            border-radius: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+        }
+
+        /* Toast Popup */
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 100;
+            background-color: #1e293b;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transform: translateY(150%);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .error-text {
+            color: #fb7185;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .hidden { display: none !important; }
+        .svg-icon { width: 1.1em; height: 1.1em; fill: currentColor; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-content">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                </div>
+                <div>
+                    <h1 class="brand-title">IP Calc Pro (Offline)</h1>
+                    <p class="brand-sub">Автономный IPv4 Калькулятор</p>
+                </div>
+            </div>
+            
+            <button onclick="resetCalculator()" class="btn-reset">
+                <svg class="svg-icon" viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                Сброс
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- Notification Toast Box -->
+        <div id="toast" class="toast">
+            <span style="color: var(--accent-emerald);" id="toastIcon">
+                <svg class="svg-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </span>
+            <span id="toastMessage" style="font-size: 0.875rem; font-weight: 500;">Скопировано в буфер обмена</span>
+        </div>
+
+        <section class="card">
+            <div class="grid-inputs">
+                
+                <!-- IP Input -->
+                <div class="form-group">
+                    <label for="ipInput" class="label">IP-адрес / Маска (CIDR)</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="ipInput" value="192.168.1.15/24" placeholder="192.168.1.1/24" class="input font-mono" oninput="calculateFromInput()">
+                        <div style="position: absolute; right: 0.75rem;">
+                            <span id="validBadge" class="badge badge-valid">Валидно</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Select Prefix -->
+                <div class="form-group">
+                    <label for="prefixSelect" class="label">Маска подсети (CIDR)</label>
+                    <select id="prefixSelect" onchange="onPrefixSelectChange()" class="select font-mono">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <!-- Presets -->
+                <div class="form-group">
+                    <label class="label">Быстрые пресеты</label>
+                    <div class="preset-grid">
+                        <button onclick="setPreset('192.168.1.50/24')" class="btn-preset font-mono">/24 Home</button>
+                        <button onclick="setPreset('10.0.0.1/8')" class="btn-preset font-mono">/8 Corp A</button>
+                        <button onclick="setPreset('172.16.10.5/16')" class="btn-preset font-mono">/16 Class B</button>
+                        <button onclick="setPreset('10.254.0.1/30')" class="btn-preset font-mono">/30 P2P</button>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div id="errorMessage" class="error-text hidden">
+                <svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                <span id="errorText">Некорректный IP-адрес</span>
+            </div>
+        </section>
+
+        <section class="grid-metrics">
+            
+            <div class="metric-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <p class="metric-title">Адрес сети (Network ID)</p>
+                        <h3 id="resNetwork" class="metric-val font-mono">192.168.1.0</h3>
+                    </div>
+                    <button onclick="copyToClipboard('resNetwork')" class="btn-icon" title="Копировать">
+                        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    </button>
+                </div>
+                <p id="resNetworkSub" class="metric-sub font-mono">CIDR: /24</p>
+            </div>
+
+            <div class="metric-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <p class="metric-title">Широковещательный (Broadcast)</p>
+                        <h3 id="resBroadcast" class="metric-val font-mono">192.168.1.255</h3>
+                    </div>
+                    <button onclick="copyToClipboard('resBroadcast')" class="btn-icon" title="Копировать">
+                        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    </button>
+                </div>
+                <p id="resBroadcastSub" class="metric-sub font-mono">Последний IP сегмента</p>
+            </div>
+
+            <div class="metric-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <p class="metric-title">Доступные хосты</p>
+                        <h3 id="resUsableHosts" class="metric-val font-mono" style="color: var(--accent-emerald);">254</h3>
+                    </div>
+                    <span style="color: var(--accent-emerald); opacity: 0.8;">
+                        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+                    </span>
+                </div>
+                <p id="resTotalHosts" class="metric-sub">Всего IP: 256</p>
+            </div>
+
+            <div class="metric-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <p class="metric-title">Тип и Класс IP</p>
+                        <h3 id="resIpClass" class="metric-val">Класс C</h3>
+                    </div>
+                    <span id="resIpScopeBadge" class="badge badge-private">Private</span>
+                </div>
+                <p id="resIpScopeSub" class="metric-sub">RFC 1918 (Локальная сеть)</p>
+            </div>
+
+        </section>
+
+        <section class="grid-details">
+            
+            <!-- Details Table -->
+            <div class="card">
+                <h2 style="font-size: 1.125rem; font-weight: 600; color: #ffffff; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 0.5rem;">
+                    Детальные параметры подсети
+                </h2>
+
+                <div>
+                    <div class="detail-row">
+                        <span class="detail-label">Маска подсети (Decimal)</span>
+                        <div class="detail-val-group font-mono">
+                            <span id="detailSubnetMask">255.255.255.0</span>
+                            <button onclick="copyToClipboard('detailSubnetMask')" class="btn-icon"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
+                        </div>
+                    </div>
+
+                    <div class="detail-row">
+                        <span class="detail-label">Обратная маска (Wildcard)</span>
+                        <div class="detail-val-group font-mono">
+                            <span id="detailWildcard">0.0.0.255</span>
+                            <button onclick="copyToClipboard('detailWildcard')" class="btn-icon"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
+                        </div>
+                    </div>
+
+                    <div class="detail-row">
+                        <span class="detail-label">Первый узловой IP (First Host)</span>
+                        <div class="detail-val-group font-mono">
+                            <span id="detailFirstHost" style="color: var(--accent-emerald);">192.168.1.1</span>
+                            <button onclick="copyToClipboard('detailFirstHost')" class="btn-icon"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
+                        </div>
+                    </div>
+
+                    <div class="detail-row">
+                        <span class="detail-label">Последний узловой IP (Last Host)</span>
+                        <div class="detail-val-group font-mono">
+                            <span id="detailLastHost" style="color: var(--accent-emerald);">192.168.1.254</span>
+                            <button onclick="copyToClipboard('detailLastHost')" class="btn-icon"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
+                        </div>
+                    </div>
+
+                    <div class="detail-row">
+                        <span class="detail-label">Диапазон узлов (Usable Range)</span>
+                        <div class="detail-val-group font-mono">
+                            <span id="detailRange">192.168.1.1 - 192.168.1.254</span>
+                            <button onclick="copyToClipboard('detailRange')" class="btn-icon"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
+                        </div>
+                    </div>
+
+                    <div class="detail-row">
+                        <span class="detail-label">Hex Representation</span>
+                        <span id="detailHex" class="font-mono">C0A8010F</span>
+                    </div>
+
+                    <div class="detail-row">
+                        <span class="detail-label">CIDR Notation</span>
+                        <span id="detailCidrNotation" class="font-mono" style="color: var(--accent-blue); font-weight: 600;">192.168.1.15/24</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subnet Splitter -->
+            <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h2 style="font-size: 1.125rem; font-weight: 600; color: #ffffff; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+                        Деление на подсети
+                    </h2>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem;">
+                        Разбить сеть <span id="splitCurrentNet" class="font-mono" style="color: #ffffff; font-weight: 600;">192.168.1.0/24</span> на подсети.
+                    </p>
+
+                    <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <label class="label">Новый префикс подсетей:</label>
+                        <select id="subnetSplitSelect" onchange="renderSubnetSplitTable()" class="select font-mono" style="font-size: 0.875rem;">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <div id="subnetListContainer" style="margin-top: 1rem; max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+
+                <div style="padding-top: 0.75rem; border-top: 1px solid var(--border-color); margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+                    <span>Всего подсетей: <strong id="splitTotalCount" style="color: #ffffff;">2</strong></span>
+                    <span>Хостов в каждой: <strong id="splitHostsPerSub" style="color: #ffffff;">126</strong></span>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Binary Representation (Moved to bottom) -->
+        <section class="card" style="display: flex; flex-direction: column; gap: 1rem;">
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; gap: 0.5rem;">
+                <div>
+                    <h2 style="font-size: 1.125rem; font-weight: 600; color: #ffffff; display: flex; align-items: center; gap: 0.5rem;">
+                        <svg class="svg-icon" style="color: var(--accent-blue);" viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+                        Двоичное представление (Binary)
+                    </h2>
+                    <p style="font-size: 0.75rem; color: var(--text-muted);">Синим — биты сети, красным — биты хоста</p>
+                </div>
+                <div style="display: flex; gap: 1rem; font-size: 0.75rem;" class="font-mono">
+                    <div style="display: flex; align-items: center; gap: 0.375rem;">
+                        <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--accent-sky);"></span>
+                        <span>Сеть (<span id="netBitsCount">24</span> бита)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.375rem;">
+                        <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--accent-rose);"></span>
+                        <span>Хост (<span id="hostBitsCount">8</span> бит)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; overflow-x: auto; padding: 0.5rem 0;" class="font-mono">
+                <div class="binary-row">
+                    <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-sans);">IP-адрес:</span>
+                    <div id="binIp" class="binary-box"></div>
+                </div>
+                <div class="binary-row">
+                    <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-sans);">Маска подсети:</span>
+                    <div id="binMask" class="binary-box"></div>
+                </div>
+                <div class="binary-row">
+                    <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-sans);">Адрес сети:</span>
+                    <div id="binNetwork" class="binary-box"></div>
+                </div>
+                <div class="binary-row">
+                    <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-sans);">Broadcast:</span>
+                    <div id="binBroadcast" class="binary-box"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer style="border-top: 1px solid var(--border-color); padding: 1.5rem 0; text-align: center; font-size: 0.75rem; color: var(--text-muted);">
+        <p>© 2026 IP Calc Pro — 100% Автономный сетевой калькулятор</p>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const ipInput = document.getElementById('ipInput');
+        const prefixSelect = document.getElementById('prefixSelect');
+        const validBadge = document.getElementById('validBadge');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+
+        // Metrics DOM
+        const resNetwork = document.getElementById('resNetwork');
+        const resNetworkSub = document.getElementById('resNetworkSub');
+        const resBroadcast = document.getElementById('resBroadcast');
+        const resUsableHosts = document.getElementById('resUsableHosts');
+        const resTotalHosts = document.getElementById('resTotalHosts');
+        const resIpClass = document.getElementById('resIpClass');
+        const resIpScopeBadge = document.getElementById('resIpScopeBadge');
+        const resIpScopeSub = document.getElementById('resIpScopeSub');
+
+        // Binary DOM
+        const binIp = document.getElementById('binIp');
+        const binMask = document.getElementById('binMask');
+        const binNetwork = document.getElementById('binNetwork');
+        const binBroadcast = document.getElementById('binBroadcast');
+        const netBitsCount = document.getElementById('netBitsCount');
+        const hostBitsCount = document.getElementById('hostBitsCount');
+
+        // Table DOM
+        const detailSubnetMask = document.getElementById('detailSubnetMask');
+        const detailWildcard = document.getElementById('detailWildcard');
+        const detailFirstHost = document.getElementById('detailFirstHost');
+        const detailLastHost = document.getElementById('detailLastHost');
+        const detailRange = document.getElementById('detailRange');
+        const detailHex = document.getElementById('detailHex');
+        const detailCidrNotation = document.getElementById('detailCidrNotation');
+
+        // Subnet Split DOM
+        const splitCurrentNet = document.getElementById('splitCurrentNet');
+        const subnetSplitSelect = document.getElementById('subnetSplitSelect');
+        const subnetListContainer = document.getElementById('subnetListContainer');
+        const splitTotalCount = document.getElementById('splitTotalCount');
+        const splitHostsPerSub = document.getElementById('splitHostsPerSub');
+
+        let currentCalculatedData = null;
+
+        // Populate Prefix Select Dropdown (/1 to /32)
+        function initPrefixDropdown() {
+            prefixSelect.innerHTML = '';
+            for (let i = 32; i >= 1; i--) {
+                const maskDec = cidrToSubnetMask(i);
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `/${i} (${maskDec})`;
+                if (i === 24) option.selected = true;
+                prefixSelect.appendChild(option);
+            }
+        }
+
+        function cidrToSubnetMask(cidr) {
+            const maskInt = cidr === 0 ? 0 : ((0xFFFFFFFF << (32 - cidr)) >>> 0);
+            return intToIp(maskInt);
+        }
+
+        function ipToInt(ip) {
+            return ip.split('.').reduce((acc, octet) => ((acc << 8) + parseInt(octet, 10)) >>> 0, 0);
+        }
+
+        function intToIp(int) {
+            return [
+                (int >>> 24) & 0xFF,
+                (int >>> 16) & 0xFF,
+                (int >>> 8) & 0xFF,
+                int & 0xFF
+            ].join('.');
+        }
+
+        function intToBinaryStr(int) {
+            return (int >>> 0).toString(2).padStart(32, '0');
+        }
+
+        function formatBinaryWithBits(intVal, cidr) {
+            const binStr = intToBinaryStr(intVal);
+            let formattedHtml = '';
+            
+            for (let i = 0; i < 32; i++) {
+                if (i > 0 && i % 8 === 0) {
+                    formattedHtml += '<span style="color: #64748b; padding: 0 2px;">.</span>';
+                }
+                const bit = binStr[i];
+                if (i < cidr) {
+                    formattedHtml += `<span class="bit-net">${bit}</span>`;
+                } else {
+                    formattedHtml += `<span class="bit-host">${bit}</span>`;
+                }
+            }
+            return formattedHtml;
+        }
+
+        function parseIpCidr(inputStr) {
+            const trimmed = inputStr.trim();
+            const parts = trimmed.split('/');
+            const ipPart = parts[0];
+            let cidrPart = parts[1];
+
+            const ipRegex = /^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/;
+            const match = ipPart.match(ipRegex);
+
+            if (!match) return null;
+
+            for (let i = 1; i <= 4; i++) {
+                const octet = parseInt(match[i], 10);
+                if (octet < 0 || octet > 255) return null;
+            }
+
+            let cidr = 24;
+            if (cidrPart !== undefined && cidrPart !== '') {
+                if (!/^\d+$/.test(cidrPart)) return null;
+                cidr = parseInt(cidrPart, 10);
+                if (cidr < 0 || cidr > 32) return null;
+            } else {
+                cidr = parseInt(prefixSelect.value, 10) || 24;
+            }
+
+            return { ip: ipPart, cidr };
+        }
+
+        function calculateFromInput() {
+            const parsed = parseIpCidr(ipInput.value);
+
+            if (!parsed) {
+                showError("Введите валидный IPv4 адрес (например, 192.168.1.1/24)");
+                return;
+            }
+
+            hideError();
+            prefixSelect.value = parsed.cidr;
+
+            const ipInt = ipToInt(parsed.ip);
+            const cidr = parsed.cidr;
+
+            const maskInt = cidr === 0 ? 0 : ((0xFFFFFFFF << (32 - cidr)) >>> 0);
+            const wildcardInt = (~maskInt) >>> 0;
+
+            const networkInt = (ipInt & maskInt) >>> 0;
+            const broadcastInt = (networkInt | wildcardInt) >>> 0;
+
+            const totalHosts = Math.pow(2, 32 - cidr);
+            let usableHosts = totalHosts > 2 ? totalHosts - 2 : (totalHosts === 2 ? 2 : 1);
+
+            let firstHostInt = networkInt + 1;
+            let lastHostInt = broadcastInt - 1;
+
+            if (cidr === 31) {
+                firstHostInt = networkInt;
+                lastHostInt = broadcastInt;
+                usableHosts = 2;
+            } else if (cidr === 32) {
+                firstHostInt = networkInt;
+                lastHostInt = networkInt;
+                usableHosts = 1;
+            }
+
+            const firstOctet = (ipInt >>> 24) & 0xFF;
+            const ipClassInfo = getIpClassAndScope(firstOctet, ipInt);
+
+            currentCalculatedData = {
+                ip: parsed.ip,
+                cidr,
+                ipInt,
+                maskInt,
+                wildcardInt,
+                networkInt,
+                broadcastInt,
+                totalHosts,
+                usableHosts,
+                firstHostInt,
+                lastHostInt,
+                ipClassInfo
+            };
+
+            updateUI(currentCalculatedData);
+        }
+
+        function getIpClassAndScope(firstOctet, ipInt) {
+            let ipClass = 'C';
+            if (firstOctet < 128) ipClass = 'A';
+            else if (firstOctet < 191) ipClass = 'B';
+            else if (firstOctet < 224) ipClass = 'C';
+            else if (firstOctet < 240) ipClass = 'D (Multicast)';
+            else ipClass = 'E (Experimental)';
+
+            let scope = 'Public';
+            let badgeClass = 'badge-public';
+            let subText = 'Публичный интернет-адрес';
+
+            if (firstOctet === 10) {
+                scope = 'Private';
+                badgeClass = 'badge-private';
+                subText = 'RFC 1918 (Класс A)';
+            } else if (firstOctet === 172 && ((ipInt >>> 16) & 0xFF) >= 16 && ((ipInt >>> 16) & 0xFF) <= 31) {
+                scope = 'Private';
+                badgeClass = 'badge-private';
+                subText = 'RFC 1918 (Класс B)';
+            } else if (firstOctet === 192 && ((ipInt >>> 8) & 0xFF) === 168) {
+                scope = 'Private';
+                badgeClass = 'badge-private';
+                subText = 'RFC 1918 (Класс C)';
+            } else if (firstOctet === 127) {
+                scope = 'Loopback';
+                badgeClass = 'badge-loopback';
+                subText = 'Локальный интерфейс (127.0.0.0/8)';
+            }
+
+            return { ipClass, scope, subText, badgeClass };
+        }
+
+        function updateUI(data) {
+            const networkStr = intToIp(data.networkInt);
+            const broadcastStr = intToIp(data.broadcastInt);
+            const maskStr = intToIp(data.maskInt);
+            const wildcardStr = intToIp(data.wildcardInt);
+            const firstHostStr = intToIp(data.firstHostInt);
+            const lastHostStr = intToIp(data.lastHostInt);
+
+            resNetwork.textContent = networkStr;
+            resNetworkSub.textContent = `CIDR Префикс: /${data.cidr}`;
+            
+            resBroadcast.textContent = broadcastStr;
+            resUsableHosts.textContent = data.usableHosts.toLocaleString();
+            resTotalHosts.textContent = `Всего IP: ${data.totalHosts.toLocaleString()}`;
+
+            resIpClass.textContent = `Класс ${data.ipClassInfo.ipClass}`;
+            resIpScopeBadge.textContent = data.ipClassInfo.scope;
+            resIpScopeBadge.className = `badge ${data.ipClassInfo.badgeClass}`;
+            resIpScopeSub.textContent = data.ipClassInfo.subText;
+
+            netBitsCount.textContent = data.cidr;
+            hostBitsCount.textContent = 32 - data.cidr;
+
+            binIp.innerHTML = formatBinaryWithBits(data.ipInt, data.cidr);
+            binMask.innerHTML = formatBinaryWithBits(data.maskInt, data.cidr);
+            binNetwork.innerHTML = formatBinaryWithBits(data.networkInt, data.cidr);
+            binBroadcast.innerHTML = formatBinaryWithBits(data.broadcastInt, data.cidr);
+
+            detailSubnetMask.textContent = maskStr;
+            detailWildcard.textContent = wildcardStr;
+            detailFirstHost.textContent = firstHostStr;
+            detailLastHost.textContent = lastHostStr;
+            detailRange.textContent = `${firstHostStr} - ${lastHostStr}`;
+            
+            detailHex.textContent = '0x' + data.ipInt.toString(16).toUpperCase().padStart(8, '0');
+            detailCidrNotation.textContent = `${data.ip}/${data.cidr}`;
+
+            populateSubnetSplitSelect(data.cidr);
+        }
+
+        function populateSubnetSplitSelect(currentCidr) {
+            splitCurrentNet.textContent = `${intToIp(currentCalculatedData.networkInt)}/${currentCidr}`;
+            subnetSplitSelect.innerHTML = '';
+
+            if (currentCidr >= 30) {
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = 'Нельзя разделить далее (маска /30 или выше)';
+                subnetSplitSelect.appendChild(opt);
+                subnetSplitSelect.disabled = true;
+                subnetListContainer.innerHTML = '<div style="color: var(--text-muted); padding: 1rem 0; text-align: center; font-size: 0.75rem;">Разделение невозможно</div>';
+                splitTotalCount.textContent = '0';
+                splitHostsPerSub.textContent = '0';
+                return;
+            }
+
+            subnetSplitSelect.disabled = false;
+            let maxSplitCidr = Math.min(currentCidr + 6, 30);
+
+            for (let newCidr = currentCidr + 1; newCidr <= maxSplitCidr; newCidr++) {
+                const numSubnets = Math.pow(2, newCidr - currentCidr);
+                const hostsPerSub = Math.pow(2, 32 - newCidr) - 2;
+                const opt = document.createElement('option');
+                opt.value = newCidr;
+                opt.textContent = `/${newCidr} — ${numSubnets} подсетей (по ${hostsPerSub > 0 ? hostsPerSub : 2} узлов)`;
+                subnetSplitSelect.appendChild(opt);
+            }
+
+            renderSubnetSplitTable();
+        }
+
+        function renderSubnetSplitTable() {
+            const newCidr = parseInt(subnetSplitSelect.value, 10);
+            if (!newCidr || !currentCalculatedData) return;
+
+            const baseCidr = currentCalculatedData.cidr;
+            const numSubnets = Math.pow(2, newCidr - baseCidr);
+            const subnetBlockSize = Math.pow(2, 32 - newCidr);
+            const hostsPerSub = Math.max(1, Math.pow(2, 32 - newCidr) - 2);
+
+            splitTotalCount.textContent = numSubnets.toLocaleString();
+            splitHostsPerSub.textContent = hostsPerSub.toLocaleString();
+
+            let html = '';
+            const maxDisplay = 64;
+
+            for (let i = 0; i < Math.min(numSubnets, maxDisplay); i++) {
+                const subNetInt = (currentCalculatedData.networkInt + (i * subnetBlockSize)) >>> 0;
+                const subNetStr = intToIp(subNetInt);
+                const subBroadInt = (subNetInt + subnetBlockSize - 1) >>> 0;
+                const subFirstInt = subNetInt + 1;
+                const subLastInt = subBroadInt - 1;
+
+                html += `
+                    <div class="subnet-item font-mono">
+                        <div>
+                            <span style="color: var(--accent-blue); font-weight: 600;">#${i + 1}</span>
+                            <span style="color: #ffffff; font-weight: 700; margin-left: 0.375rem;">${subNetStr}/${newCidr}</span>
+                        </div>
+                        <div style="color: var(--text-muted); font-size: 0.7rem;">
+                            <span style="color: #cbd5e1;">${intToIp(subFirstInt)} - ${intToIp(subLastInt)}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (numSubnets > maxDisplay) {
+                html += `<div style="text-align: center; font-size: 0.75rem; color: var(--text-muted); padding: 0.25rem 0;">...и еще ${numSubnets - maxDisplay} подсетей</div>`;
+            }
+
+            subnetListContainer.innerHTML = html;
+        }
+
+        function onPrefixSelectChange() {
+            const selectedCidr = prefixSelect.value;
+            let currentIp = ipInput.value.split('/')[0];
+            if (!currentIp) currentIp = '192.168.1.1';
+            ipInput.value = `${currentIp}/${selectedCidr}`;
+            calculateFromInput();
+        }
+
+        function setPreset(presetStr) {
+            ipInput.value = presetStr;
+            calculateFromInput();
+        }
+
+        function resetCalculator() {
+            ipInput.value = '192.168.1.15/24';
+            calculateFromInput();
+            showToast('Калькулятор сброшен');
+        }
+
+        function showError(msg) {
+            validBadge.className = "badge badge-invalid";
+            validBadge.textContent = "Ошибка";
+            errorMessage.classList.remove('hidden');
+            errorText.textContent = msg;
+        }
+
+        function hideError() {
+            validBadge.className = "badge badge-valid";
+            validBadge.textContent = "Валидно";
+            errorMessage.classList.add('hidden');
+        }
+
+        function copyToClipboard(elementId) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            const text = el.textContent || el.innerText;
+
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+
+            try {
+                document.execCommand('copy');
+                showToast(`Скопировано: ${text}`);
+            } catch (err) {
+                showToast('Не удалось скопировать');
+            } finally {
+                document.body.removeChild(textarea);
+            }
+        }
+
+        let toastTimeout;
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMessage');
+
+            toastMsg.textContent = message;
+            toast.classList.add('show');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        window.onload = function() {
+            initPrefixDropdown();
+            calculateFromInput();
+        };
+    </script>
+</body>
+</html>
