@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Miscellaneous/Веб-приложения.md",
+                "file": "index.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Веб-приложения"
+              "title": "index"
             }
           }
         ]
@@ -161,7 +161,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Miscellaneous/Веб-приложения.md",
+                "file": "index.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -190,13 +190,13 @@
   },
   "active": "47ef711f7e8c1d64",
   "lastOpenFiles": [
-    "Miscellaneous/test.md",
     "Miscellaneous/Веб-приложения.md",
+    "index.md",
+    "MikroTik/2025-01-15-mikrotik-capsman-cap-ac.md",
     "MikroTik/Terminal commands.md",
     "MikroTik/index.md",
-    "MikroTik/2025-01-15-mikrotik-capsman-cap-ac.md",
+    "Miscellaneous/test.md",
     "1С/1С Скрипт для вывода списков баз.md",
-    "index.md",
     "base_file.base",
     "Untitled.base",
     "Untitled 1.base",
