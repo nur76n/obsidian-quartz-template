@@ -2,7 +2,13 @@
 title: Главная
 nav_order: 1
 ---
-# Веб приложения
+### Содержание
+
+![[list_of_pages.base]]
+
+
+
+### Веб приложения
 
 
 [Аналемма Алматы](https://docs.zhussupov.ru/static/analemma_almaty)
@@ -12,6 +18,8 @@ nav_order: 1
 [IP-калькулятор](https://docs.zhussupov.ru/static/ip-calculator)
 
 [Генератор паролей](https://docs.zhussupov.ru/static/password-generator)
+
+
 
 
 

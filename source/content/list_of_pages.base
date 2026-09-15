@@ -1,0 +1,8 @@
+views:
+  - type: table
+    name: Table
+    filters:
+      and:
+        - file.folder != "img"
+        - file.name != "index"
+        - file.ext != "base"
