@@ -6,3 +6,5 @@ views:
         - file.folder != "img"
         - file.name != "index"
         - file.ext != "base"
+    order:
+      - file.name
