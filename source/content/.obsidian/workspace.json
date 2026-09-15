@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "index.md",
+                "file": "MikroTik/index.md",
                 "mode": "source",
                 "source": false
               },
@@ -161,7 +161,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "index.md",
+                "file": "MikroTik/index.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -190,8 +190,8 @@
   },
   "active": "47ef711f7e8c1d64",
   "lastOpenFiles": [
-    "list_of_pages.base",
     "index.md",
+    "list_of_pages.base",
     "Miscellaneous/Веб-приложения.md",
     "base_file.base",
     "MikroTik/2025-01-15-mikrotik-capsman-cap-ac.md",
