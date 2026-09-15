@@ -14,5 +14,5 @@ nav_order: 1
 [Генератор паролей](https://docs.zhussupov.ru/static/password-generator)
 
 
-![[base_file.base]]
+
 
