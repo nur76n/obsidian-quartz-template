@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "MikroTik/index.md",
+                "file": "Miscellaneous/Очистка кэша AnyDesk.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "index"
+              "title": "Очистка кэша AnyDesk"
             }
           }
         ]
@@ -161,7 +161,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "MikroTik/index.md",
+                "file": "Miscellaneous/Очистка кэша AnyDesk.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -190,13 +190,15 @@
   },
   "active": "47ef711f7e8c1d64",
   "lastOpenFiles": [
+    "1С/1С Отказоустойчивый кластер.md",
+    "Miscellaneous/Очистка кэша AnyDesk.md",
+    "MikroTik/2025-01-15-mikrotik-capsman-cap-ac.md",
+    "MikroTik/Terminal commands.md",
+    "MikroTik/index.md",
     "index.md",
     "list_of_pages.base",
     "Miscellaneous/Веб-приложения.md",
     "base_file.base",
-    "MikroTik/2025-01-15-mikrotik-capsman-cap-ac.md",
-    "MikroTik/Terminal commands.md",
-    "MikroTik/index.md",
     "Miscellaneous/test.md",
     "1С/1С Скрипт для вывода списков баз.md",
     "Untitled.base",
@@ -204,7 +206,6 @@
     "Linux/2021-09-01-megacli.md",
     "DevOps/Developement Module.md",
     "Miscellaneous",
-    "1С/1С Отказоустойчивый кластер.md",
     "1С/1С Бэкап базы с помощью PowerShell.md",
     "1С/1C Батники для создания служб.md",
     "Linux/2021-09-02-multipathd.md",
