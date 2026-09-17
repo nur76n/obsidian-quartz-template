@@ -4,7 +4,7 @@ nav_order: 1
 ---
 ### Содержание
 
-![[list_of_pages.base]]
+
 
 
 
